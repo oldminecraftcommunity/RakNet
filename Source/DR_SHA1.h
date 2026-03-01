@@ -168,8 +168,12 @@
 #ifdef _MSC_VER
 #include <tchar.h>
 #else
+#ifdef FORCE_INCLUDE_TCHAR
+#include <tchar.h>
+#else
 #ifndef TCHAR
 #define TCHAR char
+#endif
 #endif
 #ifndef _T
 #define _T(__x) (__x)
