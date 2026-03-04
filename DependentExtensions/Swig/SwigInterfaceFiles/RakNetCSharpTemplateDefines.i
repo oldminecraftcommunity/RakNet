@@ -3,8 +3,6 @@
 
 %template(Serialize) RakNet::BitStream::Serialize <bool>;
 %template(Serialize) RakNet::BitStream::Serialize <unsigned char>;
-%template(Serialize) RakNet::BitStream::Serialize <short>;
-%template(Serialize) RakNet::BitStream::Serialize <unsigned short>;
 %template(Serialize) RakNet::BitStream::Serialize <long>;
 %template(Serialize) RakNet::BitStream::Serialize <long long>;
 %template(Serialize) RakNet::BitStream::Serialize <float>;
@@ -14,8 +12,6 @@
 
 %template(SerializeDelta) RakNet::BitStream::SerializeDelta <bool>;
 %template(SerializeDelta) RakNet::BitStream::SerializeDelta <unsigned char>;
-%template(SerializeDelta) RakNet::BitStream::SerializeDelta <short>;
-%template(SerializeDelta) RakNet::BitStream::SerializeDelta <unsigned short>;
 %template(SerializeDelta) RakNet::BitStream::SerializeDelta <long>;
 %template(SerializeDelta) RakNet::BitStream::SerializeDelta <long long>;
 %template(SerializeDelta) RakNet::BitStream::SerializeDelta <float>;
@@ -25,8 +21,6 @@
 
 %template(SerializeCompressed) RakNet::BitStream::SerializeCompressed <bool>;
 %template(SerializeCompressed) RakNet::BitStream::SerializeCompressed <unsigned char>;
-%template(SerializeCompressed) RakNet::BitStream::SerializeCompressed <short>;
-%template(SerializeCompressed) RakNet::BitStream::SerializeCompressed <unsigned short>;
 %template(SerializeCompressed) RakNet::BitStream::SerializeCompressed <long>;
 %template(SerializeCompressed) RakNet::BitStream::SerializeCompressed <long long>;
 %template(SerializeCompressed) RakNet::BitStream::SerializeCompressed <float>;
@@ -36,8 +30,6 @@
 
 %template(SerializeCompressedDelta) RakNet::BitStream::SerializeCompressedDelta <bool>;
 %template(SerializeCompressedDelta) RakNet::BitStream::SerializeCompressedDelta <unsigned char>;
-%template(SerializeCompressedDelta) RakNet::BitStream::SerializeCompressedDelta <short>;
-%template(SerializeCompressedDelta) RakNet::BitStream::SerializeCompressedDelta <unsigned short>;
 %template(SerializeCompressedDelta) RakNet::BitStream::SerializeCompressedDelta <long>;
 %template(SerializeCompressedDelta) RakNet::BitStream::SerializeCompressedDelta <long long>;
 %template(SerializeCompressedDelta) RakNet::BitStream::SerializeCompressedDelta <float>;
@@ -49,8 +41,6 @@
 %template(Write) RakNet::BitStream::Write <bool>;
 %template(Write) RakNet::BitStream::Write <unsigned char>;
 %template(Write) RakNet::BitStream::Write <char>;
-%template(Write) RakNet::BitStream::Write <short>;
-%template(Write) RakNet::BitStream::Write <unsigned short>;
 %template(Write) RakNet::BitStream::Write <long>;
 %template(Write) RakNet::BitStream::Write <long long>;
 %template(Write) RakNet::BitStream::Write <float>;
@@ -62,8 +52,6 @@
 %template(WriteDelta) RakNet::BitStream::WriteDelta <bool>;
 %template(WriteDelta) RakNet::BitStream::WriteDelta <unsigned char>;
 %template(WriteDelta) RakNet::BitStream::WriteDelta <char>;
-%template(WriteDelta) RakNet::BitStream::WriteDelta <short>;
-%template(WriteDelta) RakNet::BitStream::WriteDelta <unsigned short>;
 %template(WriteDelta) RakNet::BitStream::WriteDelta <long>;
 %template(WriteDelta) RakNet::BitStream::WriteDelta <long long>;
 %template(WriteDelta) RakNet::BitStream::WriteDelta <float>;
@@ -75,8 +63,6 @@
 %template(WriteCompressed) RakNet::BitStream::WriteCompressed <bool>;
 %template(WriteCompressed) RakNet::BitStream::WriteCompressed <unsigned char>;
 %template(WriteCompressed) RakNet::BitStream::WriteCompressed <char>;
-%template(WriteCompressed) RakNet::BitStream::WriteCompressed <short>;
-%template(WriteCompressed) RakNet::BitStream::WriteCompressed <unsigned short>;
 %template(WriteCompressed) RakNet::BitStream::WriteCompressed <long>;
 %template(WriteCompressed) RakNet::BitStream::WriteCompressed <long long>;
 %template(WriteCompressed) RakNet::BitStream::WriteCompressed <float>;
@@ -88,8 +74,6 @@
 %template(WriteCompressedDelta) RakNet::BitStream::WriteCompressedDelta <bool>;
 %template(WriteCompressedDelta) RakNet::BitStream::WriteCompressedDelta <unsigned char>;
 %template(WriteCompressedDelta) RakNet::BitStream::WriteCompressedDelta <char>;
-%template(WriteCompressedDelta) RakNet::BitStream::WriteCompressedDelta <short>;
-%template(WriteCompressedDelta) RakNet::BitStream::WriteCompressedDelta <unsigned short>;
 %template(WriteCompressedDelta) RakNet::BitStream::WriteCompressedDelta <long>;
 %template(WriteCompressedDelta) RakNet::BitStream::WriteCompressedDelta <long long>;
 %template(WriteCompressedDelta) RakNet::BitStream::WriteCompressedDelta <float>;
@@ -99,8 +83,6 @@
 
 %template(Read) RakNet::BitStream::Read <bool>;
 %template(Read) RakNet::BitStream::Read <unsigned char>;
-%template(Read) RakNet::BitStream::Read <short>;
-%template(Read) RakNet::BitStream::Read <unsigned short>;
 %template(Read) RakNet::BitStream::Read <long>;
 %template(Read) RakNet::BitStream::Read <long long>;
 %template(Read) RakNet::BitStream::Read <float>;
@@ -110,8 +92,6 @@
 
 %template(ReadDelta) RakNet::BitStream::ReadDelta <bool>;
 %template(ReadDelta) RakNet::BitStream::ReadDelta <unsigned char>;
-%template(ReadDelta) RakNet::BitStream::ReadDelta <short>;
-%template(ReadDelta) RakNet::BitStream::ReadDelta <unsigned short>;
 %template(ReadDelta) RakNet::BitStream::ReadDelta <long>;
 %template(ReadDelta) RakNet::BitStream::ReadDelta <long long>;
 %template(ReadDelta) RakNet::BitStream::ReadDelta <float>;
@@ -121,8 +101,6 @@
 
 %template(ReadCompressed) RakNet::BitStream::ReadCompressed <bool>;
 %template(ReadCompressed) RakNet::BitStream::ReadCompressed <unsigned char>;
-%template(ReadCompressed) RakNet::BitStream::ReadCompressed <short>;
-%template(ReadCompressed) RakNet::BitStream::ReadCompressed <unsigned short>;
 %template(ReadCompressed) RakNet::BitStream::ReadCompressed <long>;
 %template(ReadCompressed) RakNet::BitStream::ReadCompressed <long long>;
 %template(ReadCompressed) RakNet::BitStream::ReadCompressed <float>;
@@ -132,8 +110,6 @@
 
 %template(ReadCompressedDelta) RakNet::BitStream::ReadCompressedDelta <bool>;
 %template(ReadCompressedDelta) RakNet::BitStream::ReadCompressedDelta <unsigned char>;
-%template(ReadCompressedDelta) RakNet::BitStream::ReadCompressedDelta <short>;
-%template(ReadCompressedDelta) RakNet::BitStream::ReadCompressedDelta <unsigned short>;
 %template(ReadCompressedDelta) RakNet::BitStream::ReadCompressedDelta <long>;
 %template(ReadCompressedDelta) RakNet::BitStream::ReadCompressedDelta <long long>;
 %template(ReadCompressedDelta) RakNet::BitStream::ReadCompressedDelta <float>;
@@ -174,7 +150,6 @@ ADD_LIST_TYPE(SortQuery,SortQuery,RakNetListSortQuery);
 // %template(RakNetSmartPtrRakNetSocket) RakNetSmartPtr<RakNetSocket>;
 
 //Can't use the macro because it won't include the space then nested templates won't work
-/*
 %typemap(cscode) DataStructures::List<RakNetSmartPtr<RakNetSocket> >
 %{
     public RakNetSmartPtrRakNetSocket this[int index]  
@@ -191,7 +166,6 @@ ADD_LIST_TYPE(SortQuery,SortQuery,RakNetListSortQuery);
 %}
 
 %template(RakNetListRakNetSmartPtrRakNetSocket) DataStructures::List <RakNetSmartPtr<RakNetSocket> >;
-*/
 
 %define ADD_POINTER_LIST_TYPE(CTYPE,CSTYPE,RENAME_TYPE)
 %ignore DataStructures::List<CTYPE>::Get;

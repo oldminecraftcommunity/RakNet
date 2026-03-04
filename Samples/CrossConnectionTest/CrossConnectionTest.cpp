@@ -1,15 +1,9 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 /// \file
 /// \brief Tests connecting two peers at the same time with the internet simulator running.
+///
+/// This file is part of RakNet Copyright 2003 Jenkins Software LLC
+///
+/// Usage of RakNet is subject to the appropriate license agreement.
 
 
 #include "RakPeerInterface.h"
@@ -36,8 +30,8 @@ int main()
 	rakPeer1->SetMaximumIncomingConnections(8);
 	rakPeer2->SetMaximumIncomingConnections(8);
 	
-	int gotConnectionRequestAccepted[2];
-	int gotNewIncomingConnection[2];
+	bool gotConnectionRequestAccepted[2];
+	bool gotNewIncomingConnection[2];
 	Packet *packet;
 	SocketDescriptor sd1(60000,0);
 	SocketDescriptor sd2(2000,0);
@@ -45,10 +39,10 @@ int main()
 
 	while (1)
 	{
-		gotConnectionRequestAccepted[0]=0;
-		gotConnectionRequestAccepted[1]=0;
-		gotNewIncomingConnection[0]=0;
-		gotNewIncomingConnection[1]=0;
+		gotConnectionRequestAccepted[0]=false;
+		gotConnectionRequestAccepted[1]=false;
+		gotNewIncomingConnection[0]=false;
+		gotNewIncomingConnection[1]=false;
 		numSystems[0]=0;
 		numSystems[1]=0;
 
@@ -61,29 +55,25 @@ int main()
 		for (packet=rakPeer1->Receive(); packet; rakPeer1->DeallocatePacket(packet), packet=rakPeer1->Receive())
 		{
 			if (packet->data[0]==ID_NEW_INCOMING_CONNECTION)
-				gotNewIncomingConnection[0]++;
+				gotNewIncomingConnection[0]=true;
 			else if (packet->data[0]==ID_CONNECTION_REQUEST_ACCEPTED)
-				gotConnectionRequestAccepted[0]++;
+				gotConnectionRequestAccepted[0]=true;
 			else if (packet->data[0]==ID_CONNECTION_ATTEMPT_FAILED)
 				printf("Error on rakPeer1, got ID_CONNECTION_ATTEMPT_FAILED\n");
-			else if (packet->data[0]==ID_ALREADY_CONNECTED)
-				printf("Got ID_ALREADY_CONNECTED on rakPeer1, (not necessarily a failure)\n");
 		}
 		for (packet=rakPeer2->Receive(); packet; rakPeer2->DeallocatePacket(packet), packet=rakPeer2->Receive())
 		{
 			if (packet->data[0]==ID_NEW_INCOMING_CONNECTION)
-				gotNewIncomingConnection[1]++;
+				gotNewIncomingConnection[1]=true;
 			else if (packet->data[0]==ID_CONNECTION_REQUEST_ACCEPTED)
-				gotConnectionRequestAccepted[1]++;
+				gotConnectionRequestAccepted[1]=true;
 			else if (packet->data[0]==ID_CONNECTION_ATTEMPT_FAILED)
 				printf("Error on rakPeer2, got ID_CONNECTION_ATTEMPT_FAILED\n");
-			else if (packet->data[0]==ID_ALREADY_CONNECTED)
-				printf("Got ID_ALREADY_CONNECTED on rakPeer2, (not necessarily a failure)\n");
 		}
 		rakPeer1->GetConnectionList(0,&numSystems[0]);
 		rakPeer2->GetConnectionList(0,&numSystems[1]);
 
-		if (gotConnectionRequestAccepted[0]==1 && gotConnectionRequestAccepted[1]==1)
+		if (gotConnectionRequestAccepted[0]==true && gotConnectionRequestAccepted[1]==true)
 		{
 			printf("Test passed\n");
 		}
@@ -91,38 +81,40 @@ int main()
 		{
 			printf("Test failed, system 1 has %i connections and system 2 has %i connections.\n", numSystems[0], numSystems[1]);
 		}
-		else if (gotConnectionRequestAccepted[0]==0 && gotConnectionRequestAccepted[1]==0)
+		else if (gotConnectionRequestAccepted[0]==false && gotConnectionRequestAccepted[1]==false)
 		{
 			printf("Test failed, ID_CONNECTION_REQUEST_ACCEPTED is false for both instances\n");
 		}
-		else if (gotNewIncomingConnection[0]==1 && gotNewIncomingConnection[1]==1)
+		else if (gotNewIncomingConnection[0]==true && gotNewIncomingConnection[1]==true)
 		{
 			printf("Test failed, ID_NEW_INCOMING_CONNECTION is true for both instances\n");
 		}
-		else if (gotConnectionRequestAccepted[0]==0 && gotConnectionRequestAccepted[1]==0)
+		else if (gotConnectionRequestAccepted[0]==false && gotConnectionRequestAccepted[1]==false)
 		{
 			printf("Test failed, ID_NEW_INCOMING_CONNECTION is false for both instances\n");
 		}
-		else if (gotConnectionRequestAccepted[0]==1 && gotNewIncomingConnection[1]==0)
+		else if (gotConnectionRequestAccepted[0]==true && gotNewIncomingConnection[1]==false)
 		{
 			printf("Test failed, ID_CONNECTION_REQUEST_ACCEPTED for first instance, but not ID_NEW_INCOMING_CONNECTION for second\n");
 		}
-		else if (gotConnectionRequestAccepted[1]==1 && gotNewIncomingConnection[0]==0)
+		else if (gotConnectionRequestAccepted[1]==true && gotNewIncomingConnection[0]==false)
 		{
 			printf("Test failed, ID_CONNECTION_REQUEST_ACCEPTED for second instance, but not ID_NEW_INCOMING_CONNECTION for first\n");
 		}
-		else if (gotConnectionRequestAccepted[0]+gotConnectionRequestAccepted[1]!=1)
+		else if ((int)gotConnectionRequestAccepted[0]+
+			(int)gotConnectionRequestAccepted[1]!=1)
 		{
 			printf("Test failed, does not have exactly one instance of ID_CONNECTION_REQUEST_ACCEPTED\n");
 		}
-		else if (gotNewIncomingConnection[0]+gotNewIncomingConnection[1]!=1)
+		else if ((int)gotNewIncomingConnection[0]+
+			(int)gotNewIncomingConnection[1]!=1)
 		{
 			printf("Test failed, does not have exactly one instance of ID_NEW_INCOMING_CONNECTION\n");
 		}
-		else if (gotConnectionRequestAccepted[0]+
-			gotConnectionRequestAccepted[1]+
-			gotNewIncomingConnection[0]+
-			gotNewIncomingConnection[1]!=2)
+		else if ((int)gotConnectionRequestAccepted[0]+
+			(int)gotConnectionRequestAccepted[1]+
+			(int)gotNewIncomingConnection[0]+
+			(int)gotNewIncomingConnection[1]!=2)
 		{
 			printf("Test failed, does not have exactly one instance of ID_CONNECTION_REQUEST_ACCEPTED and one instance of ID_NEW_INCOMING_CONNECTION\n");
 		}

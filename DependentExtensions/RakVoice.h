@@ -1,15 +1,9 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 /// \file
 /// \brief Voice compression and transmission interface
+///
+/// This file is part of RakNet Copyright 2003 Jenkins Software LLC
+///
+/// Usage of RakNet is subject to the appropriate license agreement.
 
 
 #ifndef __RAK_VOICE_H
@@ -60,11 +54,11 @@ struct VoiceChannel
 int VoiceChannelComp( const RakNetGUID &key, VoiceChannel * const &data );
 
 /// Voice compression and transmission interface
-class RAK_DLL_EXPORT RakVoice : public PluginInterface2
+class RakVoice : public PluginInterface2
 {
 public:
 	RakVoice();
-	virtual ~RakVoice();
+	~RakVoice();
 
 	// --------------------------------------------------------------------------------------------
 	// User functions

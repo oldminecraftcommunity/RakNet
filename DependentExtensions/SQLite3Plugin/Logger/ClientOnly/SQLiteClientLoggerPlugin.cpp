@@ -79,9 +79,9 @@ SQLLogResult SQLiteClientLoggerPlugin::SqlLog( bool isFunctionCall, const char *
 		parameterList.p14.Serialize(&bitStream);
 
 
-	if (memoryConstraint!=0 && tcpInterface)
+	if (memoryConstraint!=0 && packetizedTCP)
 	{
-		if (tcpInterface->GetOutgoingDataBufferSize(serverAddress)+bitStream.GetNumberOfBytesUsed()>=memoryConstraint)
+		if (packetizedTCP->GetOutgoingDataBufferSize(serverAddress)+bitStream.GetNumberOfBytesUsed()>=memoryConstraint)
 		{
 			recursiveCheck=false;
 			return SQLLR_WOULD_EXCEED_MEMORY_CONSTRAINT;

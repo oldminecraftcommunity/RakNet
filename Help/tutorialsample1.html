@@ -6,7 +6,7 @@
 <meta name="title" content="RakNet - Advanced multiplayer game networking API">
 </HEAD>
 <BODY BGCOLOR="#ffffff" LINK="#003399" vlink="#003399" alink="#003399" LEFTMARGIN="0" TOPMARGIN="0" MARGINWIDTH="0" MARGINHEIGHT="0"">
-<img src="RakNetLogo.jpg" alt="Oculus VR, Inc."><BR><BR>
+<img src="RakNetLogo.jpg" alt="Jenkins Software"><BR><BR>
 
 <table width="100%" border="0"><tr><td bgcolor="#6699CC"><font color="#FFFFFF" size="3" face="Arial, Helvetica, sans-serif"><strong> 
 <img src="spacer.gif" width="8" height="1">Tutorial code sample 1</strong></font></td></tr></table>
@@ -34,12 +34,10 @@ int main(void)
 	gets(str);
 	if ((str[0]=='c')||(str[0]=='C'))
 	{
-		RakNet::SocketDescriptor sd;
-		peer->Startup(1,&sd, 1);
+		peer->Startup(1,&RakNet::SocketDescriptor(), 1);
 		isServer = false;
 	} else {
-		RakNet::SocketDescriptor sd(SERVER_PORT,0);
-		peer->Startup(MAX_CLIENTS, &sd, 1);
+		peer->Startup(MAX_CLIENTS, &RakNet::SocketDescriptor(SERVER_PORT,0), 1);
 		isServer = true;
 	}
 

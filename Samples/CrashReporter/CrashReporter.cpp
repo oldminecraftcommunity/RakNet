@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // To compile link with Dbghelp.lib
 // The callstack in release is the same as usual, which means it isn't all that accurate.
 #ifdef WIN32
@@ -147,7 +137,7 @@ LONG ProcessException(struct _EXCEPTION_POINTERS *ExceptionInfo)
 			// Silently send email with attachment
 			EmailSender emailSender;
 			FileList files;
-			files.AddFile(dumpFilepath,dumpFilename,FileListNodeContext(0,0,0,0));
+			files.AddFile(dumpFilepath,dumpFilename,FileListNodeContext(0,0));
 			emailSender.Send(CrashReporter::controls.SMTPServer,
 				25,
 				CrashReporter::controls.SMTPAccountName,

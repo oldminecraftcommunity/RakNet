@@ -1,15 +1,9 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 /// \file
 /// \brief Test the command console implementations
+///
+/// This file is part of RakNet Copyright 2003 Jenkins Software LLC
+///
+/// Usage of RakNet is subject to the appropriate license agreement.
 
 
 #include "TCPInterface.h"
@@ -35,12 +29,12 @@ int main(void)
  	rakPeer->Startup(128,&sd,1);
  	rakPeer->SetMaximumIncomingConnections(128);
 
-	RakNet::TelnetTransport tt;
-	TestCommandServer(&tt, 23, rakPeer); // Uncomment to use Telnet as a client.  Telnet uses port 23 by default.
+// 	RakNet::TelnetTransport tt;
+// 	TestCommandServer(&tt, 23, rakPeer); // Uncomment to use Telnet as a client.  Telnet uses port 23 by default.
 
-// 	RakNet::RakNetTransport2 rt2;
-// 	rakPeer->AttachPlugin(&rt2);
-// 	TestCommandServer(&rt2, 60000,rakPeer); // Uncomment to use RakNet as a client
+	RakNet::RakNetTransport2 rt2;
+	rakPeer->AttachPlugin(&rt2);
+	TestCommandServer(&rt2, 60000,rakPeer); // Uncomment to use RakNet as a client
 
 	return 1;
 }

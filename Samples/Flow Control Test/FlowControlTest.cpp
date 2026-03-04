@@ -1,12 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
 
 #include "RakPeerInterface.h"
 #include "GetTime.h"
@@ -45,7 +36,7 @@ int main(void)
 	
 	memset(randomData, 255, sizeof(randomData));
 	
-	printf("This project is used to test two systems sending to each other with\n");
+	printf("This project is used to test two systems sending two each other with\n");
 	printf("variable message sends rates and payload sizes\n");
 	printf("Difficulty: Beginner\n\n");
 

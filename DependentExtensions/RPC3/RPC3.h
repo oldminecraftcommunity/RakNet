@@ -1,15 +1,9 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 /// \file
 /// \brief Automatically serializing and deserializing RPC system. Third generation of RPC.
+///
+/// This file is part of RakNet Copyright 2003 Jenkins Software LLC
+///
+/// Usage of RakNet is subject to the appropriate license agreement.
 
 
 #ifndef __RPC_3_H
@@ -80,7 +74,7 @@ enum RPCErrorCodes
 /// <LI>Pointers to classes that derive from NetworkID are automatically looked up using NetworkIDManager
 /// <LI>Types are written to BitStream, meaning built-in serialization operations are performed, including endian swapping
 /// <LI>Types can customize autoserialization by providing an implementation of operator << and operator >> to and from BitStream
-/// \note You cannot use RPC4 at the same time as RPC3
+/// \note You cannot use RPC4Plugin at the same time as RPC3
 /// \ingroup RPC_3_GROUP
 class RPC3 : public PluginInterface2
 {

@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // See http://www.bzip.org/1.0.3/bzip2-manual-1.0.3.html#low-level for docs on bzip
 #include "MemoryCompressor.h"
 #include <assert.h>

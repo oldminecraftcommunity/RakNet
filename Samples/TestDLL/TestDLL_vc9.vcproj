@@ -92,7 +92,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)Lib\RakNet_DLL_$(ConfigurationName)_$(PlatformName).dll"
+				CommandLine="copy $(SolutionDir)Lib\RakNetDebug.dll"
 			/>
 		</Configuration>
 		<Configuration
@@ -121,7 +121,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="./../../Source"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;NDEBUG;_CONSOLE;_RAKNET_DLL"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -169,7 +169,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)Lib\RakNet_DLL_$(ConfigurationName)_$(PlatformName).dll"
+				CommandLine="copy $(SolutionDir)Lib\RakNet.dll"
 			/>
 		</Configuration>
 	</Configurations>

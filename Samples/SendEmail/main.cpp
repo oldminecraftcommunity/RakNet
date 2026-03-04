@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "EmailSender.h"
 #include "FileList.h"
 #include <stdio.h>
@@ -52,7 +42,7 @@ int main()
 	else
 		hostPort=25;
 
-	fileList.AddFile("quote.txt", "quote.txt", quote, (const unsigned int) strlen(quote), (const unsigned int) strlen(quote), FileListNodeContext(0,0,0,0), false);
+	fileList.AddFile("quote.txt", "quote.txt", quote, (const unsigned int) strlen(quote), (const unsigned int) strlen(quote), FileListNodeContext(0,0), false);
 	const char *sendResult=emailSender.Send(mailServer,
 		hostPort,
 		senderUsername,

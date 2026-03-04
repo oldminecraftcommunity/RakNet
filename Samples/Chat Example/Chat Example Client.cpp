@@ -1,16 +1,7 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // ----------------------------------------------------------------------
 // RakNet version 1.0
 // Filename ChatExample.cpp
+// Created by Rakkar Software (rakkar@jenkinssoftware.com) January 24, 2003
 // Very basic chat engine example
 // ----------------------------------------------------------------------
 
@@ -88,7 +79,7 @@ int main(void)
 	client->AllowConnectionResponseIPMigration(false);
 	if (ip[0]==0)
 		strcpy(ip, "127.0.0.1");
-	// strcpy(ip, "natpunch.jenkinssoftware.com");
+	// strcpy(ip, "94.198.81.195");
 	
 		
 	puts("Enter the port to connect to");
@@ -266,7 +257,7 @@ int main(void)
 				break;
 			case ID_ALREADY_CONNECTED:
 				// Connection lost normally
-				printf("ID_ALREADY_CONNECTED with guid %" PRINTF_64_BIT_MODIFIER "u\n", p->guid);
+				printf("ID_ALREADY_CONNECTED with guid %"PRINTF_64_BIT_MODIFIER"u\n", p->guid);
 				break;
 			case ID_INCOMPATIBLE_PROTOCOL_VERSION:
 				printf("ID_INCOMPATIBLE_PROTOCOL_VERSION\n");

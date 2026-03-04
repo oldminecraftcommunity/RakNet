@@ -1,12 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
 
 #include "RakPeerInterface.h"
 #include "GetTime.h"
@@ -22,11 +13,11 @@
 #include "RakMemoryOverride.h"
 #include <stdio.h>
 #include "Gets.h"
-#include "Kbhit.h"
 
 using namespace RakNet;
 
 #ifdef _WIN32
+#include "Kbhit.h"
 #include "WindowsIncludes.h" // Sleep
 #else
 #include <unistd.h> // usleep
@@ -118,7 +109,7 @@ int main(int argc, char **argv)
 		Gets(ip, sizeof(ip));
 		if (ip[0]==0)
 			strcpy(ip, "127.0.0.1");
-			// strcpy(ip, "natpunch.jenkinssoftware.com");
+			// strcpy(ip, "94.198.81.195");
 		
 		printf("Enter remote port: ");
 		Gets(str, sizeof(str));
@@ -232,26 +223,26 @@ int main(int argc, char **argv)
 				sender->DeallocatePacket(packet);
 				packet = sender->Receive();
 			}
-
-			char *type="UNDEFINED";
+			
 			while (doSend && currentTime > nextSend)
 			{
 				streamNumber=0;
-				streamNumber = randomMT() % 4;
+			//	streamNumber = randomMT() % 32;
 				// Do the send
 
                 for (int i=0; i < 2; i++)
                 {
-					bitStream.Reset();
-					bitStream.Write((unsigned char) (ID_TIMESTAMP));
-					bitStream.Write(RakNet::GetTime());
-					bitStream.Write((unsigned char) (ID_USER_PACKET_ENUM+1));
-					bitStream.Write(packetNumber[streamNumber]);
-					packetNumber[streamNumber]++;
-					bitStream.Write(streamNumber);
+                    bitStream.Reset();
+                    bitStream.Write((unsigned char) (ID_TIMESTAMP));
+                    bitStream.Write(RakNet::GetTime());
+                    bitStream.Write((unsigned char) (ID_USER_PACKET_ENUM+1));
+                    bitStream.Write(packetNumber[streamNumber]);
+                    packetNumber[streamNumber]++;
+                    bitStream.Write(streamNumber);
 
+                    char *type="UNDEFINED";
                     PacketReliability reliability;
-                    if (0 && (randomMT()%2)==0)
+                    if ((randomMT()%2)==0)
                     {
                         type="UNRELIABLE_SEQUENCED";
                         reliability=UNRELIABLE_SEQUENCED;
@@ -263,7 +254,7 @@ int main(int argc, char **argv)
                     }
 
                     int padLength;
-					padLength = (randomMT() % 25000) + 1;
+                    padLength = (randomMT() % 2500) + 1;
                     bitStream.Write(reliability);
                     bitStream.PadWithZeroToByteLength(padLength);
 
@@ -275,10 +266,11 @@ int main(int argc, char **argv)
 				
 				if (sender)
 				{
-//					RakNetStatistics *rssSender;
-					//rssSender=sender->GetStatistics(sender->GetSystemAddressFromIndex(0));
-					
-					printf("Snd: %i, %s, time %" PRINTF_64_BIT_MODIFIER "u, length %i\n", packetNumber[streamNumber]-1, type, currentTime, bitStream.GetNumberOfBytesUsed());
+					RakNetStatistics *rssSender;
+					rssSender=sender->GetStatistics(sender->GetSystemAddressFromIndex(0));
+					//printf("Snd: %i. %i waiting on ack. KBPS=%.1f. Ploss=%.1f. Bandwidth=%f.\n", packetNumber[streamNumber], rssSender->messagesOnResendQueue,rssSender->bitsPerSecondSent/1000, 100.0f * ( float ) rssSender->messagesTotalBitsResent / ( float ) rssSender->totalBitsSent, rssSender->estimatedLinkCapacityMBPS);
+
+				//	printf("Snd: %i, %s, time %"PRINTF_64_BIT_MODIFIER"u, length %i\n", packetNumber[streamNumber]-1, type, currentTime, bitStream.GetNumberOfBytesUsed());
 				}
 
 				nextSend+=sendInterval;
@@ -321,13 +313,13 @@ int main(int argc, char **argv)
 						type="RELIABLE_ORDERED";
 
 					if (receivedPacketNumber>packetNumber[streamNumber])
-						printf("Skipped %i got %i %s (channel %i).\n",packetNumber[streamNumber], receivedPacketNumber, type, streamNumber);
+                        printf("Skipped %i got %i %s (channel %i).\n",packetNumber[streamNumber], receivedPacketNumber, type, streamNumber);
 					else if (receivedPacketNumber<packetNumber[streamNumber])
 						printf("Out of order packet! Expecting %i got %i %s (channel %i).\n",packetNumber[streamNumber], receivedPacketNumber, type, streamNumber);
 					else
 						printf("Got %i.%s.CH:%i.Len:%i.\n", packetNumber[streamNumber], type, streamNumber, packet->length);
 
-//					printf("Sent=%" PRINTF_64_BIT_MODIFIER "u Received=%" PRINTF_64_BIT_MODIFIER "u Diff=%i.\n", receivedTime, currentTime, (int)(currentTime - receivedTime));
+//					printf("Sent=%"PRINTF_64_BIT_MODIFIER"u Received=%"PRINTF_64_BIT_MODIFIER"u Diff=%i.\n", receivedTime, currentTime, (int)(currentTime - receivedTime));
 
 					packetNumber[streamNumber]=receivedPacketNumber+1;
 					break;

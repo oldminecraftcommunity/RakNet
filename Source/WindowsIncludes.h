@@ -1,20 +1,8 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
-#if   defined (WINDOWS_STORE_RT)
-#include <windows.h>
-#include <winsock.h>
+#if defined(X360__) 
 #elif defined (_WIN32)
-#include <winsock2.h>
+#include <WinSock2.h>
 #include <windows.h>
-#include <ws2tcpip.h>
+#include <Ws2tcpip.h>
 
 // Must always include Winsock2.h before windows.h
 // or else:

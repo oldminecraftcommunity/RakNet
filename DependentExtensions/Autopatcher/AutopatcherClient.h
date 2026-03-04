@@ -1,15 +1,9 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 /// \file
 /// \brief Client plugin for the autopatcher
+///
+/// This file is part of RakNet Copyright 2003 Jenkins Software LLC
+///
+/// Usage of RakNet is subject to the appropriate license agreement.
 
 
 #ifndef __AUTOPATCHER_CLIENT_H
@@ -20,9 +14,6 @@
 #include "PluginInterface2.h"
 #include "PacketPriority.h"
 #include "FileList.h"
-#include "SimpleMutex.h"
-#include "FileListTransferCBInterface.h"
-#include "AutopatcherPatchContext.h"
 
 namespace RakNet
 {
@@ -30,13 +21,7 @@ namespace RakNet
 class RakPeerInterface;
 struct Packet;
 class FileListTransfer;
-
-class RAK_DLL_EXPORT AutopatcherClientCBInterface : public FileListTransferCBInterface
-{
-public:
-	virtual PatchContext ApplyPatchBSDiff(const char *oldFilePath, char **newFileContents, unsigned int *newFileSize, char *patchContents, unsigned int patchSize);
-	virtual PatchContext ApplyPatchBase(const char *oldFilePath, char **newFileContents, unsigned int *newFileSize, char *patchContents, unsigned int patchSize, uint32_t patchAlgorithm);
-};
+class FileListTransferCBInterface;
 
 /// \ingroup Autopatcher
 class RAK_DLL_EXPORT AutopatcherClient : public PluginInterface2
@@ -71,7 +56,7 @@ public:
 	/// \param[in] _restartOutputFilename If it is necessary to restart this application, where to write the restart data to.  You can include a path in this filename.
 	/// \param[in] pathToRestartExe What exe to launch from the AutopatcherClientRestarter .  argv[0] will work to relaunch this application.
 	/// \return true on success, false on failure.  On failure, ID_AUTOPATCHER_REPOSITORY_FATAL_ERROR is returned, with the error message written using the stringCompressor class starting after the message id.
-	bool PatchApplication(const char *_applicationName, const char *_applicationDirectory, double lastUpdateDate, SystemAddress host, AutopatcherClientCBInterface *onFileCallback, const char *restartOutputFilename, const char *pathToRestartExe);
+	bool PatchApplication(const char *_applicationName, const char *_applicationDirectory, double lastUpdateDate, SystemAddress host, FileListTransferCBInterface *onFileCallback, const char *restartOutputFilename, const char *pathToRestartExe);
 
 	/// After getting ID_AUTOPATCHER_FINISHED or ID_AUTOPATCHER_RESTART_APPLICATION, the server date will be internally recorded.  You can send this to PatchApplication::lastUpdateDate to only check for files newer than that date.
 	double GetServerDate(void) const;
@@ -91,7 +76,6 @@ public:
 	/// \internal For plugin handling
 	virtual void OnShutdown(void);
 	void OnThreadCompletion(void);
-
 protected:
 	PluginReceiveResult OnCreationList(Packet *packet);
 	void OnDeletionList(Packet *packet);
@@ -113,12 +97,10 @@ protected:
 	SystemIndex serverIdIndex;
 	char orderingChannel;
 	unsigned short setId;
-	AutopatcherClientCBInterface *userCB;
+	FileListTransferCBInterface *userCB;
 	bool patchComplete;
 	FileList redownloadList, copyAndRestartList;
-
 	bool processThreadCompletion;
-	SimpleMutex processThreadCompletionMutex;
 };
 
 } // namespace RakNet

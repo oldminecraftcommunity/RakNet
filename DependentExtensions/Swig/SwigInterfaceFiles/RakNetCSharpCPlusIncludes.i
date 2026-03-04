@@ -25,7 +25,6 @@ typedef unsigned int SOCKET;
 #include "Export.h"
 #include "SimpleMutex.h"
 #include "RakString.h"
-#include "RakWString.h"
 #include "BitStream.h"
 #include "DS_List.h"	
 #include "DS_ByteQueue.h"
@@ -58,8 +57,7 @@ typedef unsigned int SOCKET;
 #include "UDPProxyClient.h"
 #include "FullyConnectedMesh2.h"
 #include "ReadyEvent.h"
-//#include "TeamBalancer.h"
-#include "TeamManager.h"
+#include "TeamBalancer.h"
 #include "NatPunchthroughServer.h"
 #include "UDPForwarder.h"
 #include "UDPProxyServer.h"
@@ -82,7 +80,6 @@ typedef unsigned int SOCKET;
 #include "PacketFileLogger.h"//
 #include "DS_Multilist.h"
 #include "ConnectionGraph2.h"
-#include "GetTime.h"
 //#include "RakNetTransport2.h"
 //#include "RoomsPlugin.h"
 //Macros
@@ -90,6 +87,7 @@ typedef unsigned int SOCKET;
 //Most of these are nested structs/classes that swig needs to understand as global
 //They will reference the nested struct/class while appearing global
 typedef RakNet::RakString::SharedString SharedString;
+typedef RakNet::UDPForwarder::SrcAndDest SrcAndDest;
 typedef DataStructures::Table::Row Row;
 typedef DataStructures::Table::Cell Cell; 
 typedef DataStructures::Table::FilterQuery FilterQuery;

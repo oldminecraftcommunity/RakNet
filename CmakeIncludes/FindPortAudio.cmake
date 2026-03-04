@@ -15,13 +15,15 @@ find_path(PORTAUDIO_INCLUDE_DIR portaudio.h
 )
 
 
-# Finally the library itself.
+
+# finally the library itself
 find_library(libPortAudio NAMES portaudio)
 find_library(libPortAudioCpp NAMES portaudiocpp)
+set(libPortAudioCpp "")
 set(PORTAUDIO_LIBRARIES ${libPortAudio} ${libPortAudioCpp})
 
-# Handle the QUIETLY and REQUIRED arguments and set PORTAUDIO_FOUND to TRUE if
-# all listed variables are TRUE.
+# handle the QUIETLY and REQUIRED arguments and set PORTAUDIO_FOUND to TRUE if
+# all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(PortAudio DEFAULT_MSG PORTAUDIO_LIBRARIES PORTAUDIO_INCLUDE_DIR)
 

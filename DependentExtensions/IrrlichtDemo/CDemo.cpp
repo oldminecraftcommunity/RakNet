@@ -6,7 +6,6 @@
 // RakNet includes
 #include "GetTime.h"
 #include "MessageIdentifiers.h"
-#include "RakNetTypes.h"
 #include "Itoa.h"
 #include "RakNetSmartPtr.h"
 #include "miniupnpc.h"
@@ -72,13 +71,13 @@ void CDemo::run()
 		return;
 
 	if (device->getFileSystem()->existFile("irrlicht.dat"))
-		device->getFileSystem()->addFileArchive("irrlicht.dat", true, true, io::EFAT_ZIP);
+		device->getFileSystem()->addZipFileArchive("irrlicht.dat");
 	else
-		device->getFileSystem()->addFileArchive(IRRLICHT_MEDIA_PATH "irrlicht.dat", true, true, io::EFAT_ZIP);
+		device->getFileSystem()->addZipFileArchive(IRRLICHT_MEDIA_PATH "irrlicht.dat");
 	if (device->getFileSystem()->existFile("map-20kdm2.pk3"))
-		device->getFileSystem()->addFileArchive("map-20kdm2.pk3", true, true, io::EFAT_ZIP);
+		device->getFileSystem()->addZipFileArchive("map-20kdm2.pk3");
 	else
-		device->getFileSystem()->addFileArchive(IRRLICHT_MEDIA_PATH "map-20kdm2.pk3", true, true, io::EFAT_ZIP);
+		device->getFileSystem()->addZipFileArchive(IRRLICHT_MEDIA_PATH "map-20kdm2.pk3");
 
 	video::IVideoDriver* driver = device->getVideoDriver();
 	scene::ISceneManager* smgr = device->getSceneManager();
@@ -447,7 +446,7 @@ void CDemo::loadSceneData()
 
 		for ( i = 0; i!= scene::quake3::E_Q3_MESH_SIZE; ++i )
 		{
-			sm->getMeshManipulator()->transform ( quakeLevelMesh->getMesh(i), m );
+			sm->getMeshManipulator()->transformMesh ( quakeLevelMesh->getMesh(i), m );
 		}
 
 		quakeLevelNode = sm->addOctreeSceneNode(
@@ -767,7 +766,7 @@ RakNet::TimeMS CDemo::shootFromOrigin(core::vector3df camPosition, core::vector3
 	core::line3d<f32> line(start, end);
 
 	// get intersection point with map
-	scene::ISceneNode* hitNode;
+	const scene::ISceneNode* hitNode;
 	if (sm->getSceneCollisionManager()->getCollisionPoint(
 		line, mapSelector, end, triangle, hitNode))
 	{
@@ -986,47 +985,13 @@ void CDemo::UpdateRakNet(void)
 			break;
 		case ID_NEW_INCOMING_CONNECTION:
 			{
-				if (fullyConnectedMesh2->IsHostSystem())
-				{
-					PushMessage(RakNet::RakString("Sending player list to new connection"));
-					fullyConnectedMesh2->StartVerifiedJoin(packet->guid);
-				}
-			}
-			break;
-		case ID_FCM2_VERIFIED_JOIN_START:
-			{
-				DataStructures::List<RakNet::SystemAddress> addresses;
-				DataStructures::List<RakNet::RakNetGUID> guids;
-				fullyConnectedMesh2->GetVerifiedJoinRequiredProcessingList(packet->guid, addresses, guids);
-				for (unsigned int i=0; i < guids.Size(); i++)
-					natPunchthroughClient->OpenNAT(guids[i], facilitatorSystemAddress);
-			}
-			break;
-		case ID_FCM2_VERIFIED_JOIN_FAILED:
-			{
-				PushMessage(RakNet::RakString("Failed to join game session"));
-			}
-			break;
-		case ID_FCM2_VERIFIED_JOIN_CAPABLE:
-			{
-				fullyConnectedMesh2->RespondOnVerifiedJoinCapable(packet, true, 0);
-			}
-			break;
-		case ID_FCM2_VERIFIED_JOIN_ACCEPTED:
-			{
-				DataStructures::List<RakNet::RakNetGUID> systemsAccepted;
-				bool thisSystemAccepted;
-				fullyConnectedMesh2->GetVerifiedJoinAcceptedAdditionalData(packet, &thisSystemAccepted, systemsAccepted, 0);
-				if (thisSystemAccepted)
-					PushMessage("Game join request accepted\n");
-				else
-					PushMessage(RakNet::RakString("System %s joined the mesh\n", systemsAccepted[0].ToString()));
-				
-				// DataStructures::List<RakNetGUID> participantList;
-				// fullyConnectedMesh2->GetParticipantList(participantList);
+				// Add as participants all except the directory server
+				fullyConnectedMesh2->AddParticipant(packet->guid);
 
-				for (unsigned int i=0; i < systemsAccepted.Size(); i++)
-					replicaManager3->PushConnection(replicaManager3->AllocConnection(rakPeer->GetSystemAddressFromGuid(systemsAccepted[i]), systemsAccepted[i]));
+				PushMessage(RakNet::RakString("New incoming connection from ") + targetName + RakNet::RakString("."));
+				
+				// Add this system as a new player
+				replicaManager3->PushConnection(replicaManager3->AllocConnection(packet->systemAddress, packet->guid));
 			}
 			break;
 		case ID_CONNECTION_REQUEST_ACCEPTED:
@@ -1067,6 +1032,14 @@ void CDemo::UpdateRakNet(void)
 					cloudQuery.keys.Push(RakNet::CloudKey("IrrlichtDemo",0),_FILE_AND_LINE_);
 					cloudClient->Get(&cloudQuery, packet->guid);
 				}
+				else
+				{
+					// Add as participants all except the directory server
+					fullyConnectedMesh2->AddParticipant(packet->guid);
+
+					// Add this system as a new player
+					replicaManager3->PushConnection(replicaManager3->AllocConnection(packet->systemAddress, packet->guid));
+				}
 			}
 			break;
 		case ID_FCM2_NEW_HOST:
@@ -1081,17 +1054,20 @@ void CDemo::UpdateRakNet(void)
 			break;
 		case ID_CLOUD_GET_RESPONSE:
 			{
+				PushMessage(RakNet::RakString("Got response from directory server"));
+
 				RakNet::CloudQueryResult cloudQueryResult;
 				cloudClient->OnGetReponse(&cloudQueryResult, packet);
 				if (cloudQueryResult.rowsReturned.Size()>0)
-				{	
-					PushMessage(RakNet::RakString("NAT punch to existing game instance"));
-					natPunchthroughClient->OpenNAT(cloudQueryResult.rowsReturned[0]->clientGUID, facilitatorSystemAddress);
+				{
+					// Will return ID_NAT_GROUP_PUNCH_SUCCEEDED on success
+					DataStructures::List<RakNet::RakNetGUID> destinationSystems;
+					for (unsigned long i=0; i < cloudQueryResult.rowsReturned.Size(); i++)
+						destinationSystems.Push(cloudQueryResult.rowsReturned[i]->clientGUID, _FILE_AND_LINE_);
+					natPunchthroughClient->OpenNATGroup(destinationSystems, facilitatorSystemAddress);
 				}
 				else
 				{
-					PushMessage(RakNet::RakString("Publishing new game instance"));
-
 					// Start as a new game instance because no other games are running
 					RakNet::CloudKey cloudKey("IrrlichtDemo",0);
 					cloudClient->Post(&cloudKey, 0, 0, packet->guid);
@@ -1147,25 +1123,37 @@ void CDemo::UpdateRakNet(void)
 				PushMessage(RakNet::RakString("NAT punchthrough to ") + targetName + RakNet::RakString(" in progress (skipping)."));
 			}
 			break;
-
-		case ID_NAT_PUNCHTHROUGH_SUCCEEDED:
+		case ID_NAT_GROUP_PUNCH_SUCCEEDED:
 			{
-				if (packet->data[1]==1)
+				// Punched all remote systems in that game session. Connect to them all at once.
+				RakNet::BitStream bs(packet->data,packet->length,false);
+				bs.IgnoreBytes(sizeof(RakNet::MessageID));
+				unsigned short count;
+				bs.Read(count);
+				unsigned short i;
+				for (i=0; i < count; i++)
 				{
-					PushMessage(RakNet::RakString("Connecting to existing game instance"));
-					RakNet::ConnectionAttemptResult car = rakPeer->Connect(packet->systemAddress.ToString(false), packet->systemAddress.GetPort(), 0, 0);
-					RakAssert(car==RakNet::CONNECTION_ATTEMPT_STARTED);
+					RakNet::SystemAddress sa;
+					bs.Read(sa);
+					unsigned char addrStr[64];
+					sa.ToString(false,(char*)addrStr);
+					rakPeer->Connect((char*)addrStr,sa.GetPort(),0,0);
 				}
 			}
 			break;
-
+		case ID_NAT_GROUP_PUNCH_FAILED:
+			{
+				char guidStr[64];
+				packet->guid.ToString(guidStr);
+				PushMessage(RakNet::RakString("NAT punchthrough to ") + guidStr + RakNet::RakString(" failed."));
+			}
+			break;
 		case ID_ADVERTISE_SYSTEM:
 			if (packet->guid!=rakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS))
 			{
 				char hostIP[32];
 				packet->systemAddress.ToString(false,hostIP);
-				RakNet::ConnectionAttemptResult car = rakPeer->Connect(hostIP,packet->systemAddress.GetPort(),0,0);
-				RakAssert(car==RakNet::CONNECTION_ATTEMPT_STARTED);
+				rakPeer->Connect(hostIP,packet->systemAddress.GetPort(),0,0);
 			}
 			break;
 		}

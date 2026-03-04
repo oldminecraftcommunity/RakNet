@@ -69,15 +69,12 @@ IGNORERAKPEERANDINTERFACE(ConnectWithSocket)
 IGNORERAKPEERANDINTERFACE(SetRouterInterface)
 IGNORERAKPEERANDINTERFACE(RemoveRouterInterface)
 IGNORERAKPEERANDINTERFACE(GetConnectionList( SystemAddress *remoteSystems, unsigned short *numberOfSystems ) const)
-IGNORERAKPEERANDINTERFACE(SetIncomingDatagramEventHandler( bool (*_incomingDatagramEventHandler)(RNS2RecvStruct *) ))
 
 //RakPeer only
 //Swig doesn't know how to handle friend functions, so even if it is in the protected section 
 //They must be explicitly ignored
 //This Specific case is somehow placed in the RakNet namespace rather than RakNet::RakPeer
 //Ignore both to be safe
-%ignore RakNet::RakPeerInterface::GetStatisticsList;
-%ignore RakNet::RakPeer::GetStatisticsList;
 %ignore RakNet::RakPeer::ProcessOfflineNetworkPacket;
 %ignore RakNet::RakPeer::ProcessNetworkPacket;
 %ignore RakNet::ProcessOfflineNetworkPacket;
@@ -129,7 +126,6 @@ IGNORERAKPEERANDINTERFACE(SetIncomingDatagramEventHandler( bool (*_incomingDatag
 
 //RakNetSocket
 %ignore RakNetSocket::recvEvent;
-%ignore RakNetSocket::Fcntl;
 
 //To allow easier future support if needed, rather than not parsing the PluginInterface2 ignore the functions
 //Later if decided that is needed remove the ignores and the commented typemaps and includes

@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RakPeerInterface.h"
 #include "BitStream.h"
 #include <stdlib.h> // For atoi
@@ -24,7 +14,7 @@
 bool quit;
 bool sentPacket=false;
 
-#define BIG_PACKET_SIZE 83296256
+#define BIG_PACKET_SIZE 50000000
 
 using namespace RakNet;
 
@@ -55,7 +45,7 @@ int main(void)
 		printf("Enter remote IP: ");
 		Gets(text,BIG_PACKET_SIZE);
 		if (text[0]==0)
-			strcpy(text, "natpunch.jenkinssoftware.com"); // dx in Europe
+			strcpy(text, "94.198.81.195"); // dx in Europe
 	}
 	else if (ch=='s')
 	{
@@ -71,13 +61,13 @@ int main(void)
 
 	// Test IPV6
 	int socketFamily;
+//	socketFamily=AF_INET6;
 	socketFamily=AF_INET;
-	//socketFamily=AF_INET6;
 
 	if (server)
 	{
 		server->SetTimeoutTime(5000,RakNet::UNASSIGNED_SYSTEM_ADDRESS);
-		RakNet::SocketDescriptor socketDescriptor(3000,0);
+		RakNet::SocketDescriptor socketDescriptor(60000,0);
 		socketDescriptor.socketFamily=socketFamily;
 		server->SetMaximumIncomingConnections(4);
 		StartupResult sr;
@@ -108,7 +98,7 @@ int main(void)
 
 		printf("Started client on %s\n", client->GetMyBoundAddress().ToString(true));
 
-		client->Connect(text, 3000, 0, 0);
+		client->Connect(text, 60000, 0, 0);
 	}
 	RakSleep(500);
 
@@ -230,18 +220,9 @@ int main(void)
 					if (quit==false)
 					{
 						printf("Test succeeded. %i bytes.\n", packet->length);
-						bool repeat=false;
-						if (repeat)
-						{
-							printf("Rerequesting send.\n");
-							unsigned char ch=(unsigned char) 253;
-							client->Send((const char*) &ch, 1, MEDIUM_PRIORITY, RELIABLE_ORDERED, 1, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
-						}
-						else
-						{
-							quit=true;
-							break;
-						}
+						printf("Rerequesting send.\n");
+						unsigned char ch=(unsigned char) 253;
+						client->Send((const char*) &ch, 1, MEDIUM_PRIORITY, RELIABLE_ORDERED, 1, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
 					}
 
 				}

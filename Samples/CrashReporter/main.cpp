@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // Windows only sample to catch unhandled exceptions and email a minidump.
 // The minidump can be opened in visual studio and will show you where the crash occurred and give you the local variable values.
 //
@@ -44,6 +34,10 @@
 
 void function1(int a)
 {
+	// Cause a global to be compiled in so I can test the watch value.  SocketLayer::I
+	RakNet::SocketLayer::GetLocalPort(-1);
+
+
 	int *crashPtr=0;
 	// Keep crashPtr from getting compiled out
 	printf("Now crashing!!!! %p\n", crashPtr);

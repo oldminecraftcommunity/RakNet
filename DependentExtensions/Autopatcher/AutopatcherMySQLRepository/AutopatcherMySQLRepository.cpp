@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RakString.h"
 #include "AutopatcherMySQLRepository.h"
 #include "AutopatcherPatchContext.h"
@@ -25,7 +15,7 @@
 #include "mysql.h"
 #include "CreatePatch.h"
 #include "AutopatcherPatchContext.h"
-// #include "DR_SHA1.h"
+// #include "SHA1.h"
 #include <stdlib.h>
 #include "LinuxStrings.h"
 
@@ -163,7 +153,7 @@ bool AutopatcherMySQLRepository::RemoveApplication(const char *applicationName)
 	return b;
 }
 
-bool AutopatcherMySQLRepository::GetChangelistSinceDate(const char *applicationName, FileList *addedOrModifiedFilesWithHashData, FileList *deletedFiles, double sinceDate)
+bool AutopatcherMySQLRepository::GetChangelistSinceDate(const char *applicationName, FileList *addedFiles, FileList *deletedFiles, double sinceDate)
 {
 	char query[512];
 	RakNet::RakString escapedApplicationName = GetEscapedString(applicationName);
@@ -223,7 +213,7 @@ bool AutopatcherMySQLRepository::GetChangelistSinceDate(const char *applicationN
 	return true;
 }
 
-int AutopatcherMySQLRepository::GetPatches(const char *applicationName, FileList *input, bool allowDownloadOfOriginalUnmodifiedFiles, FileList *patchList)
+bool AutopatcherMySQLRepository::GetPatches(const char *applicationName, FileList *input, FileList *patchList)
 {
 	char query[512];
 	RakNet::RakString escapedApplicationName = GetEscapedString(applicationName);
@@ -255,7 +245,7 @@ int AutopatcherMySQLRepository::GetPatches(const char *applicationName, FileList
 		//	               "ON FileVersionHistory.fileId = MaxId.maxId", 
 		//		applicationID, fn);
 
-			sprintf(query, "SELECT fileId, fileLength, changeSetID FROM FileVersionHistory "
+			sprintf(query, "SELECT fileId, fileLength FROM FileVersionHistory "
 				"JOIN (SELECT max(fileId) maxId FROM FileVersionHistory WHERE applicationId=%i AND filename='%s') MaxId "
 				"ON FileVersionHistory.fileId = MaxId.maxId", 
 				applicationID, fn);
@@ -278,15 +268,6 @@ int AutopatcherMySQLRepository::GetPatches(const char *applicationName, FileList
 				//patchList->AddFile(userFilename, content, contentLength, contentLength, FileListNodeContext(PC_WRITE_FILE,0));
 				const int fileId = atoi (row [0]); 
 				const int fileLength = atoi (row [1]); 
-				const int changeSetID = atoi (row [2]); 
-				if (allowDownloadOfOriginalUnmodifiedFiles==false && changeSetID==0)
-				{
-					printf("Failure: allowDownloadOfOriginalUnmodifiedFiles==false for %s length %i\n", userFilename.C_String(), fileLength);
-
-					mysql_free_result(result);
-					return false;
-				}
-
 				patchList->AddFile(userFilename,userFilename, 0, fileLength, fileLength, FileListNodeContext(PC_WRITE_FILE,fileId), true);
 			}
 			mysql_free_result(result);
@@ -401,7 +382,7 @@ int AutopatcherMySQLRepository::GetPatches(const char *applicationName, FileList
 	return true;
 }
 
-bool AutopatcherMySQLRepository::GetMostRecentChangelistWithPatches(RakNet::RakString &applicationName, FileList *patchedFiles, FileList *addedFiles, FileList *addedOrModifiedFileHashes, FileList *deletedFiles, double *priorRowPatchTime, double *mostRecentRowPatchTime)
+bool AutopatcherMySQLRepository::GetMostRecentChangelistWithPatches(RakNet::RakString &applicationName, FileList *patchedFiles, FileList *updatedFiles, FileList *updatedFileHashes, FileList *deletedFiles, double *priorRowPatchTime, double *mostRecentRowPatchTime)
 {
 	// Not yet implemented
 	return false;
@@ -639,7 +620,7 @@ bool AutopatcherMySQLRepository::UpdateApplicationFiles(const char *applicationN
 			unsigned patchLength;	
 			if (!CreatePatch(content, contentLength, (char *) hardDriveData, hardDriveDataLength, &patch, &patchLength))
 			{
-				strcpy(lastError,"CreatePatch failed.\n");
+				strcpy(lastError,"CreatePatch failed.");
 				Rollback();
 
 				newFiles.Clear();
@@ -775,7 +756,7 @@ const char *AutopatcherMySQLRepository::GetLastError(void) const
 unsigned int AutopatcherMySQLRepository::GetFilePart( const char *filename, unsigned int startReadBytes, unsigned int numBytesToRead, void *preallocatedDestination, FileListNodeContext context)
 {
 	char query[512];
-	sprintf(query, "SELECT substring(content from %i for %i) FROM FileVersionHistory WHERE fileId=%i;", startReadBytes+1,numBytesToRead,context.flnc_extraData);
+	sprintf(query, "SELECT substring(content from %i for %i) FROM FileVersionHistory WHERE fileId=%i;", startReadBytes+1,numBytesToRead,context.fileId);
 
 	// CREATE NEW CONNECTION JUST FOR THIS QUERY
 	// This is because the autopatcher is sharing this class, but this is called from multiple threads and mysql is not threadsafe

@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RakNetStuff.h"
 
 #include "NetworkIDManager.h"
@@ -90,11 +80,10 @@ void InstantiateRakNetClasses(void)
 	// Using fixed port so we can use AdvertiseSystem and connect on the LAN if the server is not available.
 	RakNet::SocketDescriptor sd(1234,0);
 	sd.socketFamily=AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
-	while (IRNS2_Berkley::IsPortInUse(sd.port, sd.hostAddress, sd.socketFamily, SOCK_DGRAM)==true)
+	while (SocketLayer::IsPortInUse(sd.port, sd.hostAddress, sd.socketFamily)==true)
 		sd.port++;
 	// +1 is for the connection to the NAT punchthrough server
-	RakNet::StartupResult sr = rakPeer->Startup(MAX_PLAYERS+1,&sd,1);
-	RakAssert(sr==RakNet::RAKNET_STARTED);
+	rakPeer->Startup(MAX_PLAYERS+1,&sd,1);
 	rakPeer->SetMaximumIncomingConnections(MAX_PLAYERS);
 	// Fast disconnect for easier testing of host migration
 	rakPeer->SetTimeoutTime(5000,UNASSIGNED_SYSTEM_ADDRESS);
@@ -119,15 +108,13 @@ void InstantiateRakNetClasses(void)
 	rakPeer->AttachPlugin(cloudClient);
 	fullyConnectedMesh2=new FullyConnectedMesh2;
 	fullyConnectedMesh2->SetAutoparticipateConnections(false);
-	fullyConnectedMesh2->SetConnectOnNewRemoteConnection(false, "");
 	rakPeer->AttachPlugin(fullyConnectedMesh2);
 	// Connect to the NAT punchthrough server
 	ConnectionAttemptResult car = rakPeer->Connect(DEFAULT_NAT_PUNCHTHROUGH_FACILITATOR_IP, DEFAULT_NAT_PUNCHTHROUGH_FACILITATOR_PORT,0,0);
 	RakAssert(car==CONNECTION_ATTEMPT_STARTED);
-
 	// Advertise ourselves on the lAN if the NAT punchthrough server is not available
- 	//for (int i=0; i < 8; i++)
- 	//	rakPeer->AdvertiseSystem("255.255.255.255", 1234+i, 0,0,0);
+ 	for (int i=0; i < 8; i++)
+ 		rakPeer->AdvertiseSystem("255.255.255.255", 1234+i, 0,0,0);
 }
 void DeinitializeRakNetClasses(void)
 {

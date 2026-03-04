@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // Demonstrates how to lag a client in the past using the interpolation history class,
 // in order to get smooth visuals despite choppy input.
 // Start two instances on the same computer, press 's' on one instance, 'c' on the other.

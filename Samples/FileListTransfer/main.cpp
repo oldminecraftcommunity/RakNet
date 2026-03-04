@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RakPeerInterface.h"
 #include "FileListTransfer.h"
 #include "RakSleep.h"
@@ -38,7 +28,7 @@ public:
 	bool OnFile(
 		OnFileStruct *onFileStruct)
 	{
-		printf("OnFile: %i. (100%%) %i/%i %s %ib / %ib\n",
+		printf("%i. (100%%) %i/%i %s %ib / %ib\n",
 			onFileStruct->setID,
 			onFileStruct->fileIndex+1,
 			onFileStruct->numberOfFilesInThisSet,
@@ -67,15 +57,13 @@ public:
 
 	virtual void OnFileProgress(FileProgressStruct *fps)
 	{
-		printf("OnFileProgress: %i partCount=%i partTotal=%i (%i%%) %i/%i %s %ib/%ib %ib/%ib total\n",
+		printf("%i partCount=%i partTotal=%i (%i%%) %i/%i %s %ib / %ib\n",
 			fps->onFileStruct->setID,
-			fps->partCount, fps->partTotal, (int) (100.0*(double)fps->onFileStruct->bytesDownloadedForThisFile/(double)fps->onFileStruct->byteLengthOfThisFile),
+			fps->partCount, fps->partTotal, (int) (100.0*(double)fps->partCount/(double)fps->partTotal),
 			fps->onFileStruct->fileIndex+1,
 			fps->onFileStruct->numberOfFilesInThisSet,
 			fps->onFileStruct->fileName,
-			fps->onFileStruct->bytesDownloadedForThisFile,
 			fps->onFileStruct->byteLengthOfThisFile,
-			fps->onFileStruct->bytesDownloadedForThisSet,
 			fps->onFileStruct->byteLengthOfThisSet,
 			fps->firstDataChunk);
 	}
@@ -125,11 +113,7 @@ int main()
 	RakNet::FileListTransfer flt1, flt2;
 #ifdef USE_TCP
 	RakNet::PacketizedTCP tcp1, tcp2;
-	#if RAKNET_SUPPORT_IPV6==1
 	const bool testInet6=true;
-	#else
-	const bool testInet6=false;
-	#endif
 	if (testInet6)
 	{
 		tcp1.Start(60000,1,-99999,AF_INET6);
@@ -183,7 +167,7 @@ int main()
 #endif
 		return 1;
 	}
-	fileList.AddFile(file.C_String(), file.C_String(), 0, fileLength, fileLength, FileListNodeContext(0,0,0,0), true);
+	fileList.AddFile(file.C_String(), file.C_String(), 0, fileLength, fileLength, FileListNodeContext(0,0), true);
 	// Wait for the connection
 	printf("File added.\n");
 	RakSleep(100);
@@ -221,7 +205,7 @@ int main()
 		RakNet::SystemAddress sa;
 		sa = tcp1.HasNewIncomingConnection();
 		if (sa!=RakNet::UNASSIGNED_SYSTEM_ADDRESS)
-			flt1.Send(&fileList,0,sa,0,HIGH_PRIORITY,0, &incrementalReadInterface, 2000 * 1024);
+			flt1.Send(&fileList,0,sa,0,HIGH_PRIORITY,0, &incrementalReadInterface, 2000000);
 		tcp1.DeallocatePacket(packet1);
 		tcp2.DeallocatePacket(packet2);
 #else

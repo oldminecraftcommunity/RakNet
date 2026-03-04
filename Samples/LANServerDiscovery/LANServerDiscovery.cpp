@@ -1,16 +1,7 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // ----------------------------------------------------------------------
 // RakNet version 1.0
 // Filename ChatExample.cpp
+// Created by Rakkar Software (rakkar@jenkinssoftware.com) January 24, 2003
 // Very basic chat engine example
 // ----------------------------------------------------------------------
 #include "MessageIdentifiers.h"
@@ -93,7 +84,7 @@ int main(void)
 		// Connecting the client is very simple.  0 means we don't care about
 		// a connectionValidationInteger, and false for low priority threads
 		// All 255's mean broadcast
-		client->Ping("255.255.255.255", atoi(serverPort), false);
+		client->Ping("255.255.255.255", atoi(serverPort), true);
 
 		printf("Pinging\n");
 	}
@@ -132,14 +123,6 @@ int main(void)
 				bsIn.IgnoreBytes(1);
 				bsIn.Read(time);
 				printf("Got pong from %s with time %i\n", p->systemAddress.ToString(), RakNet::GetTimeMS() - time);
-			}
-			else if (p->data[0]==ID_UNCONNECTED_PING)
-			{
-				printf("ID_UNCONNECTED_PING from %s\n",p->guid.ToString());
-			}
-			else if (p->data[0]==ID_UNCONNECTED_PING_OPEN_CONNECTIONS)
-			{
-				printf("ID_UNCONNECTED_PING_OPEN_CONNECTIONS from %s\n",p->guid.ToString());
 			}
 			client->DeallocatePacket(p);
 		}

@@ -6,7 +6,7 @@
 <link href="RaknetManual.css" rel="stylesheet" type="text/css">
 <meta name="title" content="RakNet - Advanced multiplayer game networking API">
 </HEAD><BODY BGCOLOR="#ffffff" LINK="#003399" vlink="#003399" alink="#003399" LEFTMARGIN="0" TOPMARGIN="0" MARGINWIDTH="0" MARGINHEIGHT="0"">
-<span style="background-color: rgb(255, 255, 255);"><img src="RakNet_Icon_Final-copy.jpg" alt="Oculus VR, Inc." width="150" height="150"></span><BR>
+<span style="background-color: rgb(255, 255, 255);"><img src="RakNet_Icon_Final-copy.jpg" alt="Jenkins Software" width="150" height="150"></span><BR>
 <BR>
 <table width="100%" border="0">
   <tr>
@@ -17,8 +17,6 @@
   <TR>
     <TD>
 	
-	<A HREF="http://science.webhostinggeeks.com/raknet-nat-punchthrough">Serbo-Croatian translation</A>
-	
 	  <p><span class="RakNetBlueHeader">What is NAT?</span>	 <BR>
 	    <BR>
       NAT is short for network address translation. It is used by routers to map addresses behind the router to a single destination address, using different ports. For example, if you have two computers behind a router, but only one ISP, then both computers will use the same IP address, but with different source ports than what the application actually assigned. The router keeps a lookup table of what mappings it provides, so when a remote computer replies it is routed to the correct local computer behind the NAT.</p>
@@ -26,8 +24,7 @@
 	  <p><span class="RakNetBlueHeader">NAT Punchthrough Overview</span></p>
 <p>	    The NatPunchthroughClient.cpp plugin requires a user hosted server, not behind NAT, running NatPunchthroughServer.cpp that both clients can connect to. The server will find the external IP address of each client, and tell both clients to connect to that address at the same time. If that fails, each client will attempt to estimate the ports used by the other. If that fails, the process repeats once again, in case later port estimation opened a prior port. If that also fails, the plugin returns ID_NAT_PUNCHTHROUGH_FAILED.      </p>
 <p>Note 1: If you publish through Steam, we also provide <a href="steamlobby.html">SteamLobby</a>, which uses servers hosted by Valve, in which case NATPunchthrough is not necessary.<br>
-  Note 2: NAT Punchthrough is not necessary if exclusively using <a href="ipv6support.html">IPV6</a>.<br>
-  Note 3: If your game is client/server only, you may simply enforce that servers must support UPNP. See <em>DependentExtensions\miniupnpc-1.6.20120410</em>. Most routers support this these days, and assuming UPNP passes, anyone can connect to you.</p>
+  Note 2: NAT Punchthrough is not necessary if exclusively using <a href="ipv6support.html">IPV6</a>. </p>
 <p><span class="RakNetBlueHeader">NAT Punchthrough Algorithm</span></p>
 <ol>
   <li> Peer P1 wants to connect to peer P2, both of whom are connected to a third Non-NAT system, F</li>
@@ -61,7 +58,7 @@
 	  <ol>
 	    <li>Create an instance of the plugin: <span class="RakNetCode">NatPunchthroughClient natPunchthroughClient;</span></li>
 	    <li>Attach the plugin to an instance of RakPeerInterface: <span class="RakNetCode">rakPeer-&gt;AttachPlugin(&amp;natPunchthroughClient);</span></li>
-	    <li>Connect to the server, and wait for ID_CONNECTION_REQUEST_ACCEPTED. Use the following line to use the free server provided by RakNet: <span class="RakNetCode">rakPeer-&gt;Connect(&quot;natpunch.jenkinssoftware.com&quot;, 61111, 0, 0);</span></li>
+	    <li>Connect to the server, and wait for ID_CONNECTION_REQUEST_ACCEPTED. Use the following line to use the free server provided by RakNet: <span class="RakNetCode">rakPeer-&gt;Connect(&quot;8.17.250.34&quot;, 60481, 0, 0);</span></li>
 	    <li>Call OpenNAT with the RakNetGUID (globally unique identifier) of the remote system that you want to connect to. In order to get the RakNetGUID, you would either have to transmit it with your own code on the server, upload it to the <A HREF="phpdirectoryserver.html">PHPDirectoryServer</A>, or use a plugin that stores it, such as <A HREF="lightweightdatabase.html">LightweightDatabase</A>: <span class="RakNetCode">natPunchthroughClient.OpenNAT(remoteGuid, serverSystemAddress);</span>. In order to read your own RakNetGUID, use <span class="RakNetCode">RakPeerInterface::GetGuidFromSystemAddress(UNASSIGNED_SYSTEM_ADDRESS);</span></li>
 	    <li>Wait a while. It may take over 10 seconds to try every possible port twice, although it often works within a couple of seconds. If you want to get text messages on what is happening, you can use <span class="RakNetCode">NatPunchthroughClient::SetDebugInterface()</span></li>
 	    <li>ID_NAT_PUNCHTHROUGH_SUCCEEDED means the punchthrough succeeded, and you should be able to connect or send other messages to the remote system. Packet::SystemAddress is the address of the system you can now connect to. Any other ID_NAT_* means the punchthrough failed. See MessageIdentifiers.h for the list of codes and comments on each. </li>

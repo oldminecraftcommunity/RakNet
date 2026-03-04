@@ -1,16 +1,7 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // ----------------------------------------------------------------------
 // RakNet version 1.0
 // Filename ChatExample.cpp
+// Created by Rakkar Software (rakkar@jenkinssoftware.com) January 24, 2003
 // Very basic chat engine example
 // ----------------------------------------------------------------------
 
@@ -117,19 +108,18 @@ int main(void)
 	server->SetOccasionalPing(true);
 	server->SetUnreliableTimeout(1000);
 
-	DataStructures::List< RakNet::RakNetSocket2* > sockets;
+	DataStructures::List<RakNet::RakNetSmartPtr < RakNet::RakNetSocket> > sockets;
 	server->GetSockets(sockets);
 	printf("Socket addresses used by RakNet:\n");
 	for (unsigned int i=0; i < sockets.Size(); i++)
 	{
-		printf("%i. %s\n", i+1, sockets[i]->GetBoundAddress().ToString(true));
+		printf("%i. %s\n", i+1, sockets[i]->boundAddress.ToString(true));
 	}
 
 	printf("\nMy IP addresses:\n");
 	for (unsigned int i=0; i < server->GetNumberOfAddresses(); i++)
 	{
-		RakNet::SystemAddress sa = server->GetInternalID(RakNet::UNASSIGNED_SYSTEM_ADDRESS, i);
-		printf("%i. %s (LAN=%i)\n", i+1, sa.ToString(false), sa.IsLANAddress());
+		printf("%i. %s\n", i+1, server->GetLocalIP(i));
 	}
 
 	printf("\nMy GUID is %s\n", server->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString());
@@ -222,9 +212,8 @@ int main(void)
 		// All messages to all clients come from the server either directly or by being
 		// relayed from other clients
 		message2[0]=0;
-		const static char prefix[] = "Server: ";
-		strncpy(message2, prefix, sizeof(message2));
-		strncat(message2, message, sizeof(message2) - strlen(prefix) - 1);
+		strcpy(message2, "Server: ");
+		strcat(message2, message);
 	
 		// message2 is the data to send
 		// strlen(message2)+1 is to send the null terminator
@@ -256,17 +245,6 @@ int main(void)
 				// Somebody connected.  We have their IP now
 				printf("ID_NEW_INCOMING_CONNECTION from %s with GUID %s\n", p->systemAddress.ToString(true), p->guid.ToString());
 				clientID=p->systemAddress; // Record the player ID of the client
-
-				printf("Remote internal IDs:\n");
-				for (int index=0; index < MAXIMUM_NUMBER_OF_INTERNAL_IDS; index++)
-				{
-					RakNet::SystemAddress internalId = server->GetInternalID(p->systemAddress, index);
-					if (internalId!=RakNet::UNASSIGNED_SYSTEM_ADDRESS)
-					{
-						printf("%i. %s\n", index+1, internalId.ToString(true));
-					}
-				}
-
 				break;
 
 			case ID_INCOMPATIBLE_PROTOCOL_VERSION:

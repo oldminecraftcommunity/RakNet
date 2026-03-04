@@ -1,15 +1,8 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 /// \file
 ///
+/// This file is part of RakNet Copyright 2003 Jenkins Software LLC
+///
+/// Usage of RakNet is subject to the appropriate license agreement.
 
 
 #include "RakNetTypes.h"
@@ -19,14 +12,13 @@
 #include "WindowsIncludes.h"
 #include "WSAStartupSingleton.h"
 #include "SocketDefines.h"
-#include "RakNetSocket2.h"
 
 
 #if   defined(_WIN32)
 // extern __int64 _strtoui64(const char*, char**, int); // needed for Code::Blocks. Does not compile on Visual Studio 2010
 // IP_DONTFRAGMENT is different between winsock 1 and winsock 2.  Therefore, Winsock2.h must be linked againt Ws2_32.lib
 // winsock.h must be linked against WSock32.lib.  If these two are mixed up the flag won't work correctly
-#include "WindowsIncludes.h"
+#include <winsock2.h>
 
 #else
 #include <sys/socket.h>
@@ -71,34 +63,21 @@ void AddressOrGUID::ToString(bool writePort, char *dest) const
 }
 bool RakNet::NonNumericHostString( const char *host )
 {
-	// Return false if IP address. Return true if domain
-	unsigned int i=0;
-	while (host[i])
-	{
-		// IPV4: natpunch.jenkinssoftware.com
-		// IPV6: fe80::7c:31f7:fec4:27de%14
-		if ((host[i]>='g' && host[i]<='z') ||
-			(host[i]>='A' && host[i]<='Z'))
-			return true;
-		++i;
-	}
-	return false;
+	if ( host[ 0 ] >= '0' && host[ 0 ] <= '9' )
+		return false;
+
+	if ( (host[ 0 ] == '-') && ( host[ 1 ] >= '0' && host[ 1 ] <= '9' ) )
+		return false;
+
+	if ( strstr(host,":") )
+		return false;
+
+	return true;
 }
 
-SocketDescriptor::SocketDescriptor() {
-#ifdef __native_client__
-	blockingSocket=false;
-#else
-	blockingSocket=true;
-#endif
-	port=0; hostAddress[0]=0; remotePortRakNetWasStartedOn_PS3_PSP2=0; extraSocketOptions=0; socketFamily=AF_INET;}
+SocketDescriptor::SocketDescriptor() {port=0; hostAddress[0]=0; remotePortRakNetWasStartedOn_PS3_PSP2=0; extraSocketOptions=0; socketFamily=AF_INET;}
 SocketDescriptor::SocketDescriptor(unsigned short _port, const char *_hostAddress)
 {
-	#ifdef __native_client__
-		blockingSocket=false;
-	#else
-		blockingSocket=true;
-	#endif
 	remotePortRakNetWasStartedOn_PS3_PSP2=0;
 	port=_port;
 	if (_hostAddress)
@@ -139,7 +118,7 @@ unsigned short SystemAddress::GetPortNetworkOrder(void) const
 {
 	return address.addr4.sin_port;
 }
-void SystemAddress::SetPortHostOrder(unsigned short s)
+void SystemAddress::SetPort(unsigned short s)
 {
 	address.addr4.sin_port=htons(s);
 	debugPort=s;
@@ -193,7 +172,7 @@ int SystemAddress::size(void)
 #if RAKNET_SUPPORT_IPV6==1
 	return sizeof(sockaddr_in6) + sizeof(char);
 #else
-	return sizeof(uint32_t) + sizeof(unsigned short) + sizeof(char);
+	return sizeof(unsigned long) + sizeof(unsigned short) + sizeof(char);
 #endif
 }
 unsigned long SystemAddress::ToInteger( const SystemAddress &sa )
@@ -246,8 +225,6 @@ bool SystemAddress::IsLoopback(void) const
 		// unsigned long l = htonl(address.addr4.sin_addr.s_addr);
 		if (htonl(address.addr4.sin_addr.s_addr)==2130706433)
 			return true;
-		if (address.addr4.sin_addr.s_addr==0)
-			return true;
 	}
 #if RAKNET_SUPPORT_IPV6==1
 	else
@@ -270,14 +247,6 @@ void SystemAddress::ToString_Old(bool writePort, char *dest, char portDelineator
 	char portStr[2];
 	portStr[0]=portDelineator;
 	portStr[1]=0;
-
-
-
-
-
-
-
-
 
 
 
@@ -386,7 +355,7 @@ SystemAddress::SystemAddress()
 SystemAddress::SystemAddress(const char *str)
 {
 	address.addr4.sin_family=AF_INET;
-	SetPortHostOrder(0);
+	SetPort(0);
 	FromString(str);
 	systemIndex=(SystemIndex)-1;
 }
@@ -396,22 +365,6 @@ SystemAddress::SystemAddress(const char *str, unsigned short port)
 	FromStringExplicitPort(str,port);
 	systemIndex=(SystemIndex)-1;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -465,16 +418,7 @@ void SystemAddress::FixForIPVersion(const SystemAddress &boundAddressToSocket)
 // 		}
 	}
 }
-bool SystemAddress::IsLANAddress(void)
-{
-//	return address.addr4.sin_addr.S_un.S_un_b.s_b1==10 || address.addr4.sin_addr.S_un.s_b1==192;
-#if defined(__WIN32__)
-	return address.addr4.sin_addr.S_un.S_un_b.s_b1==10 || address.addr4.sin_addr.S_un.S_un_b.s_b1==192;
-#else
-	return (address.addr4.sin_addr.s_addr >> 24) == 10 || (address.addr4.sin_addr.s_addr >> 24) == 192;
-#endif
-}
-bool SystemAddress::SetBinaryAddress(const char *str, char portDelineator)
+void SystemAddress::SetBinaryAddress(const char *str, char portDelineator)
 {
 	if ( NonNumericHostString( str ) )
 	{
@@ -488,35 +432,23 @@ bool SystemAddress::SetBinaryAddress(const char *str, char portDelineator)
 
 
 
-
-
 			address.addr4.sin_addr.s_addr=inet_addr__("127.0.0.1");
 
 			if (str[9])
 			{
-				SetPortHostOrder((unsigned short) atoi(str+9));
+				SetPort((unsigned short) atoi(str+9));
 			}
-			return true;
+			return;
 		}
 
-		//const char *ip = ( char* ) SocketLayer::DomainNameToIP( str );
-		char ip[65];
-		ip[0]=0;
-		RakNetSocket2::DomainNameToIP(str, ip);
-		if (ip[0])
+		const char *ip = ( char* ) SocketLayer::DomainNameToIP( str );
+		if (ip)
 		{
-
-
 
 
 
 			address.addr4.sin_addr.s_addr=inet_addr__(ip);
 
-		}
-		else
-		{
-			*this = UNASSIGNED_SYSTEM_ADDRESS;
-			return false;
 		}
 	}
 	else
@@ -569,8 +501,6 @@ bool SystemAddress::SetBinaryAddress(const char *str, char portDelineator)
 
 
 
-
-
 			address.addr4.sin_addr.s_addr=inet_addr__(IPPart);
 
 		}
@@ -583,17 +513,14 @@ bool SystemAddress::SetBinaryAddress(const char *str, char portDelineator)
 		}
 		//#endif
 	}
-	return true;
 }
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4702 ) // warning C4702: unreachable code
-#endif
 bool SystemAddress::FromString(const char *str, char portDelineator, int ipVersion)
 {
 #if RAKNET_SUPPORT_IPV6!=1
 	(void) ipVersion;
-	return SetBinaryAddress(str,portDelineator);
+	SetBinaryAddress(str,portDelineator);
+	return true;
 #else
 	if (str==0)
 	{
@@ -672,18 +599,7 @@ bool SystemAddress::FromString(const char *str, char portDelineator, int ipVersi
 		hints.ai_family = AF_UNSPEC;
 	getaddrinfo(ipPart, "", &hints, &servinfo);
 	if (servinfo==0)
-	{
-		if (ipVersion==6)
-		{
-			ipVersion=4;
-			hints.ai_family = AF_UNSPEC;
-			getaddrinfo(ipPart, "", &hints, &servinfo);
-			if (servinfo==0)
-				return false;
-		}
-		else
-			return false;
-	}
+		return false;
 	RakAssert(servinfo);
 	
 	unsigned short oldPort = address.addr4.sin_port;
@@ -692,7 +608,7 @@ bool SystemAddress::FromString(const char *str, char portDelineator, int ipVersi
 	{
 // 		if (ipVersion==6)
 // 		{
-//			address.addr4.sin_family=AF_INET6;
+			address.addr4.sin_family=AF_INET6;
 // 			memset(&address.addr6,0,sizeof(address.addr6));
 // 			memcpy(address.addr6.sin6_addr.s6_addr+12,&((struct sockaddr_in *)servinfo->ai_addr)->sin_addr.s_addr,sizeof(unsigned long));
 // 		}
@@ -735,10 +651,7 @@ bool SystemAddress::FromStringExplicitPort(const char *str, unsigned short port,
 {
 	bool b = FromString(str,(char) 0,ipVersion);
 	if (b==false)
-	{
-		*this=UNASSIGNED_SYSTEM_ADDRESS;
 		return false;
-	}
 	address.addr4.sin_port=htons(port);
 	debugPort=ntohs(address.addr4.sin_port);
 	return true;
@@ -783,10 +696,10 @@ void RakNetGUID::ToString(char *dest) const
 {
 	if (*this==UNASSIGNED_RAKNET_GUID)
 		strcpy(dest, "UNASSIGNED_RAKNET_GUID");
-	else
-		//sprintf(dest, "%u.%u.%u.%u.%u.%u", g[0], g[1], g[2], g[3], g[4], g[5]);
-		sprintf(dest, "%" PRINTF_64_BIT_MODIFIER "u", (long long unsigned int) g);
-		// sprintf(dest, "%u.%u.%u.%u.%u.%u", g[0], g[1], g[2], g[3], g[4], g[5]);
+
+	//sprintf(dest, "%u.%u.%u.%u.%u.%u", g[0], g[1], g[2], g[3], g[4], g[5]);
+	sprintf(dest, "%" PRINTF_64_BIT_MODIFIER "u", (long long unsigned int) g);
+	// sprintf(dest, "%u.%u.%u.%u.%u.%u", g[0], g[1], g[2], g[3], g[4], g[5]);
 }
 bool RakNetGUID::FromString(const char *source)
 {

@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // Common includes
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,97 +28,6 @@
 #define LISTEN_PORT 60000
 #define MAX_INCOMING_CONNECTIONS 128
 
-char WORKING_DIRECTORY[MAX_PATH];
-char PATH_TO_XDELTA_EXE[MAX_PATH];
-
-// The default AutopatcherPostgreRepository2 uses bsdiff which takes too much memory for large files.
-// I override MakePatch to use XDelta in this case
-class AutopatcherPostgreRepository2_WithXDelta : public RakNet::AutopatcherPostgreRepository2
-{
-	bool MakePatch(const char *oldFile, const char *newFile, char **patch, unsigned int *patchLength, int *patchAlgorithm)
-	{
-		FILE *fpOld = fopen(oldFile, "rb");
-		fseek(fpOld, 0, SEEK_END);
-		int contentLengthOld = ftell(fpOld);
-		FILE *fpNew = fopen(newFile, "rb");
-		fseek(fpNew, 0, SEEK_END);
-		int contentLengthNew = ftell(fpNew);
-
-		if ((contentLengthOld < 33554432 && contentLengthNew < 33554432) || PATH_TO_XDELTA_EXE[0]==0)
-		{
-			// Use bsdiff, which does a good job but takes a lot of memory based on the size of the file
-			*patchAlgorithm=0;
-			bool b = MakePatchBSDiff(fpOld, contentLengthOld, fpNew, contentLengthNew, patch, patchLength);
-			fclose(fpOld);
-			fclose(fpNew);
-			return b;
-		}
-		else
-		{
-			*patchAlgorithm=1;
-			fclose(fpOld);
-			fclose(fpNew);
-
-			char buff[128];
-			RakNet::TimeUS time = RakNet::GetTimeUS();
-#if defined(_WIN32)
-			sprintf(buff, "%I64u", time);
-#else
-			sprintf(buff, "%llu", (long long unsigned int) time);
-#endif
-
-			// Invoke xdelta
-			// See https://code.google.com/p/xdelta/wiki/CommandLineSyntax
-			char commandLine[512];
-			_snprintf(commandLine, sizeof(commandLine)-1, "-f -s %s %s patchServer_%s.tmp", oldFile, newFile, buff);
-			commandLine[511]=0;
-			
-			SHELLEXECUTEINFO shellExecuteInfo;
-			shellExecuteInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-			shellExecuteInfo.fMask = SEE_MASK_NOASYNC | SEE_MASK_NO_CONSOLE;
-			shellExecuteInfo.hwnd = NULL;
-			shellExecuteInfo.lpVerb = "open";
-			shellExecuteInfo.lpFile = PATH_TO_XDELTA_EXE;
-			shellExecuteInfo.lpParameters = commandLine;
-			shellExecuteInfo.lpDirectory = WORKING_DIRECTORY;
-			shellExecuteInfo.nShow = SW_SHOWNORMAL;
-			shellExecuteInfo.hInstApp = NULL;
-			ShellExecuteEx(&shellExecuteInfo);
-			//ShellExecute(NULL, "open", PATH_TO_XDELTA_EXE, commandLine, WORKING_DIRECTORY, SW_SHOWNORMAL);
-
-			char pathToPatch[MAX_PATH];
-			sprintf(pathToPatch, "%s/patchServer_%s.tmp", WORKING_DIRECTORY, buff);
-			// r+ instead of r, because I want exclusive access in case xdelta is still working
-			FILE *fpPatch = fopen(pathToPatch, "r+b");
-			RakNet::TimeUS stopWaiting = time + 60000000 * 5;
-			while (fpPatch==0 && RakNet::GetTimeUS() < stopWaiting)
-			{
-				RakSleep(1000);
-				fpPatch = fopen(pathToPatch, "r+b");
-			}
-			if (fpPatch==0)
-				return false;
-			fseek(fpPatch, 0, SEEK_END);
-			*patchLength = ftell(fpPatch);
-			fseek(fpPatch, 0, SEEK_SET);
-			*patch = (char*) rakMalloc_Ex(*patchLength, _FILE_AND_LINE_);
-			fread(*patch, 1, *patchLength, fpPatch);
-			fclose(fpPatch);
-
-			int unlinkRes = _unlink(pathToPatch);
-			while (unlinkRes!=0 && RakNet::GetTimeUS() < stopWaiting)
-			{
-				RakSleep(1000);
-				unlinkRes = _unlink(pathToPatch);
-			}
-			if (unlinkRes!=0)
-				printf("\nWARNING: unlink %s failed.\nerr=%i (%s)\n", pathToPatch, errno, strerror(errno));
-
-			return true;
-		}
-	}
-};
-
 int main(int argc, char **argv)
 {
 	printf("Server starting... ");
@@ -137,7 +36,7 @@ int main(int argc, char **argv)
 	RakNet::FileListTransfer fileListTransfer;
 	static const int workerThreadCount=4; // Used for checking patches only
 	static const int sqlConnectionObjectCount=32; // Used for both checking patches and downloading
-	AutopatcherPostgreRepository2_WithXDelta connectionObject[sqlConnectionObjectCount];
+	RakNet::AutopatcherPostgreRepository connectionObject[sqlConnectionObjectCount];
 	RakNet::AutopatcherRepositoryInterface *connectionObjectAddresses[sqlConnectionObjectCount];
 	for (int i=0; i < sqlConnectionObjectCount; i++)
 		connectionObjectAddresses[i]=&connectionObject[i];
@@ -194,24 +93,7 @@ int main(int argc, char **argv)
 	// A greater number of SQL connections, which read files incrementally for large downloads
 	autopatcherServer.StartThreads(workerThreadCount,sqlConnectionObjectCount, connectionObjectAddresses);
 	autopatcherServer.CacheMostRecentPatch(0);
-	// autopatcherServer.SetAllowDownloadOfOriginalUnmodifiedFiles(false);
 	printf("System ready for connections\n");
-
-	// https://code.google.com/p/xdelta/downloads/list
-	printf("Optional: Enter path to xdelta.exe: ");
-	Gets(PATH_TO_XDELTA_EXE, sizeof(PATH_TO_XDELTA_EXE));
-	if (PATH_TO_XDELTA_EXE[0]==0)
-		strcpy(PATH_TO_XDELTA_EXE, "c:/xdelta3-3.0.6-win32.exe");
-
-	if (PATH_TO_XDELTA_EXE[0])
-	{
-		printf("Enter working directory to store temporary files: ");
-		Gets(WORKING_DIRECTORY, sizeof(WORKING_DIRECTORY));
-		if (WORKING_DIRECTORY[0]==0)
-			GetTempPath(MAX_PATH, WORKING_DIRECTORY);
-		if (WORKING_DIRECTORY[strlen(WORKING_DIRECTORY)-1]=='\\' || WORKING_DIRECTORY[strlen(WORKING_DIRECTORY)-1]=='/')
-			WORKING_DIRECTORY[strlen(WORKING_DIRECTORY)-1]=0;
-	}
 
 	printf("(D)rop database\n(C)reate database.\n(A)dd application\n(U)pdate revision.\n(R)emove application\n(Q)uit\n");
 
@@ -306,8 +188,8 @@ int main(int argc, char **argv)
 				char appDir[512];
 				Gets(appDir,sizeof(appDir));
 				if (appDir[0]==0)
-					strcpy(appDir, "D:\\temp");
-				
+					strcpy(appDir, "D:/temp");
+
 				if (connectionObject[0].UpdateApplicationFiles(appName, appDir, username, 0)==false)
 				{
 					printf("%s", connectionObject[0].GetLastError());

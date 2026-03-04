@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RakPeerInterface.h"
 #include "RakSleep.h"
 #include <stdio.h>
@@ -27,10 +17,6 @@
 #include "Gets.h"
 #include "CloudServerHelper.h"
 #include "CloudClient.h"
-#include "RakNetStatistics.h"
-#include "RelayPlugin.h"
-
-//#define VERBOSE_LOGGING
 
 using namespace RakNet;
 
@@ -45,20 +31,18 @@ enum FeatureList
 {
 	NAT_TYPE_DETECTION_SERVER,
 	NAT_PUNCHTHROUGH_SERVER,
-	RELAY_PLUGIN,
 	UDP_PROXY_COORDINATOR,
 	UDP_PROXY_SERVER,
 	CLOUD_SERVER,
 	FEATURE_LIST_COUNT,
 };
 
-static int DEFAULT_RAKPEER_PORT=61111;
+#define RAKPEER_PORT 61111
 
 #define NatTypeDetectionServerFramework_Supported QUERY
 #define NatPunchthroughServerFramework_Supported QUERY
-#define RelayPlugin_Supported QUERY
-#define UDPProxyCoordinatorFramework_Supported UNSUPPORTED
-#define UDPProxyServerFramework_Supported UNSUPPORTED
+#define UDPProxyCoordinatorFramework_Supported QUERY
+#define UDPProxyServerFramework_Supported QUERY
 #define CloudServerFramework_Supported QUERY
 
 struct SampleFramework
@@ -86,16 +70,26 @@ struct NatTypeDetectionServerFramework : public SampleFramework
 			ntds = new NatTypeDetectionServer;
 			rakPeer->AttachPlugin(ntds);
 
-			if (rakPeer->GetNumberOfAddresses() < 4)
+			SystemAddress ipList[ MAXIMUM_NUMBER_OF_INTERNAL_IDS ];
+			SocketLayer::GetMyIP( ipList );
+			for (int i=0; i<4; i++)
 			{
+				if (ipList[i]==UNASSIGNED_SYSTEM_ADDRESS && i < MAXIMUM_NUMBER_OF_INTERNAL_IDS)
+				{
 					printf("Failed. Not enough IP addresses to bind to.\n");
 					rakPeer->DetachPlugin(ntds);
 					delete ntds;
 					ntds=0;
 					isSupported=UNSUPPORTED;
 					return;
+				}
 			}
-			ntds->Startup(rakPeer->GetLocalIP(1), rakPeer->GetLocalIP(2), rakPeer->GetLocalIP(3));
+			char ipListStr1[128],ipListStr2[128],ipListStr3[128];
+			ipList[1].ToString(false,ipListStr1);
+			ipList[2].ToString(false,ipListStr2);
+			ipList[3].ToString(false,ipListStr3);
+			printf("Starting %s on %s, %s, %s.\n", QueryName(), ipListStr1, ipListStr2, ipListStr3);
+			ntds->Startup(ipListStr1, ipListStr2, ipListStr3);
 		}
 	}
 	virtual void ProcessPacket(RakNet::RakPeerInterface *rakPeer, Packet *packet)
@@ -125,9 +119,7 @@ struct NatPunchthroughServerFramework : public SampleFramework, public NatPuncht
 		{
 			nps = new NatPunchthroughServer;
 			rakPeer->AttachPlugin(nps);
-			#ifdef VERBOSE_LOGGING
-				nps->SetDebugInterface(this);
-			#endif
+			nps->SetDebugInterface(this);
 		}
 	}
 	virtual void ProcessPacket(RakNet::RakPeerInterface *rakPeer, Packet *packet)
@@ -145,39 +137,9 @@ struct NatPunchthroughServerFramework : public SampleFramework, public NatPuncht
 
 	NatPunchthroughServer *nps;
 };
-struct RelayPluginFramework : public SampleFramework
-{
-	RelayPluginFramework() {isSupported=RelayPlugin_Supported;}
-	virtual const char * QueryName(void) {return "RelayPlugin";}
-	virtual const char * QueryRequirements(void) {return "None.";}
-	virtual const char * QueryFunction(void) {return "Relays messages between named connections.";}
-	virtual void Init(RakNet::RakPeerInterface *rakPeer)
-	{
-		if (isSupported==SUPPORTED)
-		{
-			relayPlugin = new RelayPlugin;
-			rakPeer->AttachPlugin(relayPlugin);
-			relayPlugin->SetAcceptAddParticipantRequests(true);
-		}
-	}
-	virtual void ProcessPacket(RakNet::RakPeerInterface *rakPeer, Packet *packet)
-	{
-	}
-	virtual void Shutdown(RakNet::RakPeerInterface *rakPeer)
-	{
-		if (relayPlugin)
-		{
-			rakPeer->DetachPlugin(relayPlugin);
-			delete relayPlugin;
-			relayPlugin=0;
-		}
-	}
-
-	RelayPlugin *relayPlugin;
-};
 struct UDPProxyCoordinatorFramework : public SampleFramework
 {
-	UDPProxyCoordinatorFramework() {udppc=0; isSupported=UDPProxyCoordinatorFramework_Supported;}
+	UDPProxyCoordinatorFramework() {isSupported=UDPProxyCoordinatorFramework_Supported;}
 	virtual const char * QueryName(void) {return "UDPProxyCoordinator";}
 	virtual const char * QueryRequirements(void) {return "Bandwidth to handle a few hundred bytes per game session.";}
 	virtual const char * QueryFunction(void) {return "Coordinates UDPProxyClient to find available UDPProxyServer.\nExactly one instance required.";}
@@ -290,7 +252,7 @@ SystemAddress ConnectBlocking(RakNet::RakPeerInterface *rakPeer, const char *hos
 }
 struct UDPProxyServerFramework : public SampleFramework, public UDPProxyServerResultHandler
 {
-	UDPProxyServerFramework() {udpps=0; isSupported=UDPProxyServerFramework_Supported;}
+	UDPProxyServerFramework() {isSupported=UDPProxyServerFramework_Supported;}
 	virtual const char * QueryName(void) {return "UDPProxyServer";}
 	virtual const char * QueryRequirements(void) {return "Bandwidth to handle forwarded game traffic.";}
 	virtual const char * QueryFunction(void) {return "Allows game clients to forward network traffic transparently.\nOne or more instances required, can be added at runtime.";}
@@ -307,7 +269,7 @@ struct UDPProxyServerFramework : public SampleFramework, public UDPProxyServerRe
 				printf("\n");
 				if (ch=='1' || ch==13) // 13 is just pressing return
 				{
-					coordinatorAddress=rakPeer->GetInternalID(UNASSIGNED_SYSTEM_ADDRESS,0);
+					coordinatorAddress=rakPeer->GetMyBoundAddress().ToString(true);
 				}
 				else if (ch=='2')
 				{
@@ -404,8 +366,7 @@ struct CloudServerFramework : public SampleFramework
 			rakPeer->AttachPlugin(cloudClient);
 			cloudServerHelperFilter = new CloudServerHelperFilter;
 			cloudServer->AddQueryFilter(cloudServerHelperFilter);
-			cloudServer->SetMaxUploadBytesPerClient(65535);
-			cloudServerHelper.OnConnectionCountChange(rakPeer, cloudClient);
+			RakNet::CloudServerHelper::OnConnectionCountChange(rakPeer, cloudClient);
 		}
 	}
 	virtual void ProcessPacket(RakNet::RakPeerInterface *rakPeer, Packet *packet)
@@ -416,17 +377,13 @@ struct CloudServerFramework : public SampleFramework
 		switch (packet->data[0])
 		{
 		case ID_NEW_INCOMING_CONNECTION:
-#ifdef VERBOSE_LOGGING
 			printf("Got connection to %s\n", packet->systemAddress.ToString(true));
-#endif
-			cloudServerHelper.OnConnectionCountChange(rakPeer, cloudClient);
+			RakNet::CloudServerHelper::OnConnectionCountChange(rakPeer, cloudClient);
 			break;
 		case ID_CONNECTION_LOST:
 		case ID_DISCONNECTION_NOTIFICATION:
-#ifdef VERBOSE_LOGGING
 			printf("Lost connection to %s\n", packet->systemAddress.ToString(true));
-#endif
-			cloudServerHelper.OnConnectionCountChange(rakPeer, cloudClient);
+			RakNet::CloudServerHelper::OnConnectionCountChange(rakPeer, cloudClient);
 			break;
 		}
 	}
@@ -448,58 +405,39 @@ struct CloudServerFramework : public SampleFramework
 	RakNet::CloudServer *cloudServer;
 	RakNet::CloudClient *cloudClient;
 	RakNet::CloudServerHelperFilter *cloudServerHelperFilter;
-	RakNet::CloudServerHelper cloudServerHelper;
 };
-int main(int argc, char **argv)
+int main()
 {
 	RakNet::RakPeerInterface *rakPeer=RakNet::RakPeerInterface::GetInstance();
 	SystemAddress ipList[ MAXIMUM_NUMBER_OF_INTERNAL_IDS ];
+	SocketLayer::GetMyIP( ipList );
 	printf("IPs:\n");
 	unsigned int i;
-	for (i=0; i < MAXIMUM_NUMBER_OF_INTERNAL_IDS; i++)
+	for (i=0; i < MAXIMUM_NUMBER_OF_INTERNAL_IDS && ipList[i]!=UNASSIGNED_SYSTEM_ADDRESS; i++)
 	{
-		ipList[i]=rakPeer->GetLocalIP(i);
-		if (ipList[i]!=UNASSIGNED_SYSTEM_ADDRESS)
-			printf("%i. %s\n", i+1, ipList[i].ToString(false));
-		else
-			break;
+		printf("%i. %s\n", i+1, ipList[i].ToString(false));
 	}
 		
-	// If RakPeer is started on 2 IP addresses, NATPunchthroughServer supports port stride detection, improving success rate
-	int sdLen=1;
-	RakNet::SocketDescriptor sd[2];
-	if (argc>1)
+	RakNet::SocketDescriptor sd(RAKPEER_PORT,0);
+	if (rakPeer->Startup(32,&sd,1)!=RakNet::RAKNET_STARTED)
 	{
-		DEFAULT_RAKPEER_PORT = atoi(argv[1]);
+		RakNet::SocketDescriptor sd2(RAKPEER_PORT,0);
+		if (rakPeer->Startup(32,&sd2,1)!=RakNet::RAKNET_STARTED)
+		{
+			printf("Failed to start rakPeer! Quitting\n");
+			RakNet::RakPeerInterface::DestroyInstance(rakPeer);
+			return 1;
+		}
 	}
-	
-	sd[0].port=DEFAULT_RAKPEER_PORT;
-	printf("Using port %i\n", sd[0].port);
-	if (i>=2)
-	{
-		strcpy(sd[0].hostAddress, ipList[0].ToString(false));
-		sd[1].port=DEFAULT_RAKPEER_PORT+1;
-		strcpy(sd[1].hostAddress, ipList[1].ToString(false));
-		sdLen=2;
-	}
-
-	if (rakPeer->Startup(8096,sd,sdLen)!=RakNet::RAKNET_STARTED)
-	{
-		printf("Failed to start rakPeer! Quitting\n");
-		RakNet::RakPeerInterface::DestroyInstance(rakPeer);
-		return 1;
-	}
-	rakPeer->SetTimeoutTime(5000, UNASSIGNED_SYSTEM_ADDRESS);
 	printf("Started on %s\n", rakPeer->GetMyBoundAddress().ToString(true));
 	printf("\n");
 
-	rakPeer->SetMaximumIncomingConnections(8096);
+	rakPeer->SetMaximumIncomingConnections(32);
 
 	SampleFramework *samples[FEATURE_LIST_COUNT];
 	i=0;
 	samples[i++] = new NatTypeDetectionServerFramework;
 	samples[i++] = new NatPunchthroughServerFramework;
-	samples[i++] = new RelayPluginFramework;
 	samples[i++] = new UDPProxyCoordinatorFramework;
 	samples[i++] = new UDPProxyServerFramework;
 	samples[i++] = new CloudServerFramework;
@@ -604,38 +542,10 @@ int main(int argc, char **argv)
 
 		if (kbhit())
 		{
-			char ch = getch();
-			if (ch=='q')
-			{
+			if (getch()=='q')
 				quit=true;
-			}
-			else if (ch==' ')
-			{
-				RakNetStatistics rns;
-				char message[2048];
-				bool hasStatistics = rakPeer->GetStatistics(0, &rns);
-				if (hasStatistics)
-				{
-					StatisticsToString(&rns, message, 2);
-					printf("SYSTEM 0:\n%s\n", message);
-
-					memset(&rns, 0, sizeof(RakNetStatistics));
-					rakPeer->GetStatistics(UNASSIGNED_SYSTEM_ADDRESS, &rns);
-					StatisticsToString(&rns, message, 2);
-					printf("STAT SUM:\n%s\n", message);
-				}
-				else
-				{
-					printf("No system 0\n");
-				}
-
-				DataStructures::List<SystemAddress> addresses;
-				DataStructures::List<RakNetGUID> guids;
-				rakPeer->GetSystemList(addresses, guids);
-				printf("%i systems connected\n", addresses.Size());
-			}
 		}
-		RakSleep(30);
+		RakSleep(100);
 	}
 
 	printf("Quitting.\n");

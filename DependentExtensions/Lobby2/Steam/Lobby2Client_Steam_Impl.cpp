@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "Lobby2Client_Steam_Impl.h"
 #include "Lobby2Message_Steam.h"
 #include <stdlib.h>
@@ -197,7 +187,7 @@ void Lobby2Client_Steam_Impl::OnLobbyCreated( LobbyCreated_t *pCallback, bool bI
 			RoomMember roomMember;
 			roomMember.steamIDRemote=SteamMatchmaking()->GetLobbyOwner(roomId).ConvertToUint64();
 			roomMember.systemAddress.address.addr4.sin_addr.s_addr=nextFreeSystemAddress++;
-			roomMember.systemAddress.SetPortHostOrder(STEAM_UNUSED_PORT);
+			roomMember.systemAddress.SetPort(STEAM_UNUSED_PORT);
 			roomMembersByAddr.Insert(roomMember.systemAddress,roomMember,true,_FILE_AND_LINE_);
 			roomMembersById.Insert(roomMember.steamIDRemote,roomMember,true,_FILE_AND_LINE_);
 
@@ -240,7 +230,7 @@ void Lobby2Client_Steam_Impl::OnLobbyJoined( LobbyEnter_t *pCallback, bool bIOFa
 				RoomMember roomMember;
 				roomMember.steamIDRemote=SteamUser()->GetSteamID().ConvertToUint64();
 				roomMember.systemAddress.address.addr4.sin_addr.s_addr=nextFreeSystemAddress++;
-				roomMember.systemAddress.SetPortHostOrder(STEAM_UNUSED_PORT);
+				roomMember.systemAddress.SetPort(STEAM_UNUSED_PORT);
 				roomMembersByAddr.Insert(roomMember.systemAddress,roomMember,true,_FILE_AND_LINE_);
 				roomMembersById.Insert(roomMember.steamIDRemote,roomMember,true,_FILE_AND_LINE_);
 
@@ -252,7 +242,7 @@ void Lobby2Client_Steam_Impl::OnLobbyJoined( LobbyEnter_t *pCallback, bool bIOFa
 				{
 					roomMember.steamIDRemote=SteamMatchmaking()->GetLobbyOwner(roomId).ConvertToUint64();
 					roomMember.systemAddress.address.addr4.sin_addr.s_addr=nextFreeSystemAddress++;
-					roomMember.systemAddress.SetPortHostOrder(STEAM_UNUSED_PORT);
+					roomMember.systemAddress.SetPort(STEAM_UNUSED_PORT);
 					roomMembersByAddr.Insert(roomMember.systemAddress,roomMember,true,_FILE_AND_LINE_);
 					roomMembersById.Insert(roomMember.steamIDRemote,roomMember,true,_FILE_AND_LINE_);
 				}
@@ -381,7 +371,7 @@ void Lobby2Client_Steam_Impl::CallRoomCallbacks()
 			RoomMember roomMember;
 			roomMember.steamIDRemote=currentMembers[currentMemberIndex];
 			roomMember.systemAddress.address.addr4.sin_addr.s_addr=nextFreeSystemAddress++;
-			roomMember.systemAddress.SetPortHostOrder(STEAM_UNUSED_PORT);
+			roomMember.systemAddress.SetPort(STEAM_UNUSED_PORT);
 			updatedRoomMembers.Insert(roomMember.steamIDRemote,roomMember,true,_FILE_AND_LINE_);
 
 			anyChanges=true;
@@ -421,7 +411,7 @@ void Lobby2Client_Steam_Impl::CallRoomCallbacks()
 		RoomMember roomMember;
 		roomMember.steamIDRemote=currentMembers[currentMemberIndex];
 		roomMember.systemAddress.address.addr4.sin_addr.s_addr=nextFreeSystemAddress++;
-		roomMember.systemAddress.SetPortHostOrder(STEAM_UNUSED_PORT);
+		roomMember.systemAddress.SetPort(STEAM_UNUSED_PORT);
 		updatedRoomMembers.Insert(roomMember.steamIDRemote,roomMember,true,_FILE_AND_LINE_);
 
 		anyChanges=true;
@@ -506,7 +496,7 @@ void Lobby2Client_Steam_Impl::NotifyLeaveRoom(void)
 	ClearRoom();
 }
 
-int Lobby2Client_Steam_Impl::RakNetSendTo( const char *data, int length, const SystemAddress &systemAddress )
+int Lobby2Client_Steam_Impl::RakNetSendTo( SOCKET s, const char *data, int length, const SystemAddress &systemAddress )
 {
 	bool objectExists;
 	unsigned int i = roomMembersByAddr.GetIndexFromKey(systemAddress, &objectExists);
@@ -519,15 +509,16 @@ int Lobby2Client_Steam_Impl::RakNetSendTo( const char *data, int length, const S
 	}
 	else if (systemAddress.GetPort()!=STEAM_UNUSED_PORT)
 	{
-	//	return SocketLayer::SendTo_PC(s,data,length,systemAddress,_FILE_AND_LINE_);
-		return -1;
+		return SocketLayer::SendTo_PC(s,data,length,systemAddress,_FILE_AND_LINE_);
 	}
 	return 0;
 }
 
-int Lobby2Client_Steam_Impl::RakNetRecvFrom( char dataOut[ MAXIMUM_MTU_SIZE ], SystemAddress *senderOut, bool calledFromMainThread)
+int Lobby2Client_Steam_Impl::RakNetRecvFrom( const SOCKET sIn, RakPeer *rakPeerIn, char dataOut[ MAXIMUM_MTU_SIZE ], SystemAddress *senderOut, bool calledFromMainThread)
 {
 	(void) calledFromMainThread;
+	(void) rakPeerIn;
+	(void) sIn;
 
 	uint32 pcubMsgSize;
 	if (SteamNetworking() && SteamNetworking()->IsP2PPacketAvailable(&pcubMsgSize))
@@ -593,15 +584,9 @@ void Lobby2Client_Steam_Impl::OnFailedConnectionAttempt(Packet *packet, PI2_Fail
 void Lobby2Client_Steam_Impl::OnAttach(void)
 {
 	nextFreeSystemAddress=(uint32_t) rakPeerInterface->GetMyGUID().g;
-
-	// If this asserts, call RakPeer::Startup() before attaching Lobby2Client_Steam
-	DataStructures::List<RakNetSocket2* > sockets;
-	rakPeerInterface->GetSockets(sockets);
-	((RNS2_Windows*)sockets[0])->SetSocketLayerOverride(this);
+	SocketLayer::SetSocketLayerOverride(this);
 }
 void Lobby2Client_Steam_Impl::OnDetach(void)
 {
-	DataStructures::List<RakNetSocket2* > sockets;
-	rakPeerInterface->GetSockets(sockets);
-	((RNS2_Windows*)sockets[0])->SetSocketLayerOverride(this);
+	SocketLayer::SetSocketLayerOverride(0);
 }

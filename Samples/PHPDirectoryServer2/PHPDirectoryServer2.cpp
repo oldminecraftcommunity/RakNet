@@ -1,16 +1,9 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 /// \file
 /// \brief Contains WebGameList, a client for communicating with a HTTP list of game servers
 ///
+/// This file is part of RakNet Copyright 2008 Kevin Jenkins.
+///
+/// Usage of RakNet is subject to the appropriate license agreement.
 /// Creative Commons Licensees are subject to the
 /// license found at
 /// http://creativecommons.org/licenses/by-nc/2.5/
@@ -18,7 +11,8 @@
 /// http://www.jenkinssoftware.com/SingleApplicationLicense.html
 /// Custom license users are subject to the terms therein.
 /// GPL license users are subject to the GNU General Public
-/// License as published by the Free Software Foundation
+/// License as published by the Free
+/// Software Foundation
 
 #include "PHPDirectoryServer2.h"
 #include "HTTPConnection.h"

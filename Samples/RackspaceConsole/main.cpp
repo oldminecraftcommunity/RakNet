@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "Rackspace.h"
 #include <stdio.h>
 #include "Gets.h"
@@ -169,6 +159,8 @@ class DisplayHTMLPage : public RakNet::RackspaceEventCallback_Default
 
 int main()
 {
+	printf("TODO Rename RackspaceConsole.\nAdd RackspaceServerManager, uses CloudClient to monitor load, reboot lost servers.\n");
+
 #if OPEN_SSL_CLIENT_SUPPORT!=1
 	printf("RakNet must be built with OPEN_SSL_CLIENT_SUPPORT");
 	return 1;

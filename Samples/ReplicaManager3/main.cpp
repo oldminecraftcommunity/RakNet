@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // Demonstrates ReplicaManager 3: A system to automatically create, destroy, and serialize objects
 
 #include "StringTable.h"
@@ -385,7 +375,7 @@ int main(void)
 	{
 		topology=P2P;
 		sd.port=SERVER_PORT;
-		while (IRNS2_Berkley::IsPortInUse(sd.port,sd.hostAddress,sd.socketFamily, SOCK_DGRAM)==true)
+		while (SocketLayer::IsPortInUse(sd.port,sd.hostAddress,sd.socketFamily)==true)
 			sd.port++;
 	}
 
@@ -509,7 +499,7 @@ int main(void)
 				// 	B. Delete these objects on my own system
 				replicaManager.GetReplicasCreatedByMe(replicaListOut);
 				replicaManager.BroadcastDestructionList(replicaListOut, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
-				for (unsigned int i=0; i < replicaListOut.Size(); i++)
+				for (int i=0; i < replicaListOut.Size(); i++)
 					RakNet::OP_DELETE(replicaListOut[i], _FILE_AND_LINE_);
 			}
 

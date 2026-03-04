@@ -6,7 +6,7 @@
 <meta name="title" content="RakNet - Advanced multiplayer game networking API">
 </head>
 <body leftmargin="0" topmargin="0" style="background-color: rgb(255, 255, 255);" alink="#003399" link="#003399" marginheight="0" marginwidth="0" vlink="#003399">
-<img src="RakNet_Icon_Final-copy.jpg" alt="Oculus VR, Inc." width="150" height="150"><br>
+<img src="RakNet_Icon_Final-copy.jpg" alt="Jenkins Software" width="150" height="150"><br>
 <br>
 <table border="0" width="100%">
 <tbody>
@@ -21,7 +21,7 @@
 <tr>
 <td><p><span class="RakNetBlueHeader">Major systems that go into the making of a multiplayer game</span><br>
   <br>
-In the early days of gaming all you had was an IP address and a download. These days you have integration into 3rd party systems such as Steam, patching, voice chat, multiple game modes, cross-platform play, and more.  I list some major systems by category below, along with the options available for solving these problems and pros and cons of each system. This page applies to any multiplayer game, not just those using RakNet, although RakNet specific solutions are listed at the end of each section.</p></td>
+Multiplayer enabled games require additional systems and/or design considerations over single player games. I list these by category below, along with the options available for solving these problems and pros and cons of each system. This page applies to any multiplayer game, not just those using RakNet, although RakNet specific solutions are listed at the end of each section.</p></td>
 </tr>
 </tbody>
 </table>
@@ -42,10 +42,10 @@ In the early days of gaming all you had was an IP address and a download. These 
 <p>Applicable to client/server games where you control the servers, you can have a DNS entry point to the server. Connecting clients can then connect to the DNS entry rather than typing in a fixed IP address. This is useful if the IP address of the server may change. This service is available for free through <a href="http://www.dyndns.com/">http://www.dyndns.com/</a>. RakNet provides a class to update DynDNS as well, found in Source/DynDNS.h and Source/DynDNS.cpp. This is usually used for client/server games where you host your own server.</p>
 <p><span class="RakNetBlueHeader">LAN Broadcast</span></p>
 <p>If the remote computer is on the same LAN, you can discover this computer by sending a datagram to the IP address 255.255.255.255 provided that the remote computer is listening on the port you send on, and will send a datagram in response. RakNet provides this through the Ping() and AdvertiseSystem() functions.</p>
-<p class="RakNetBlueHeader">Lobby server</p>
-<p>Consoles such as the XBOX 360 and the PS3, and services such as Steam on the PC offer a lobby system. The lobby system also typically provides services such as DLC, achievements, friends, and rooms. RakNet provides the SteamLobby plugin, and rough equivalents on the XBOX and PS3 with their respective lobby classes. This is usually used for peer-to-peer games, where players have some significant interaction between each other before the game starts.</p>
-<p class="RakNetBlueHeader">Master server</p>
-  <p>Similar to the rooms server, a server maintains a list of running games. Typically, when an end-user starts a game, they upload statistics about the game to a master server, which allows queries on uploaded games. We offer this service for free at with our <a href="masterserver2.html">hosted master server</a>.</p>
+<p class="RakNetBlueHeader">Rooms server</p>
+<p>More sophisticated games may have a system of rooms for users to find each other. A server will contain a list of rooms, where each room contains a list of players. Players connect to that server, search for and join rooms, and start games through this system. The server is responsible for storing the IP addresses of each player and transmitting that data to other players.  RakNet provides this service on the PC through the RoomsPlugin plugin, on Steam through the SteamLobby plugin, and rough equivalents on the XBOX and PS3 with their respective lobby classes. This is usually used for peer-to-peer games, where players have some significant interaction between each other before the game starts.</p>
+<p class="RakNetBlueHeader">Directory server</p>
+  <p>Similar to the rooms server, a server maintains a list of running games. Typically, when an end-user starts a game, they upload statistics about the game to a directory server that you as the developer host. The directory server holds the IP addresses of the running games, game statistics, and allows game clients to download the list of running games. The clients would then locally connect to servers to join games in progress. This is usually used for client/server games where players host their own game servers. RakNet provides this service through the <a href="cloudcomputing.html">CloudServer / CloudClient projects</a>.</p>
   <p></p></td>
 </tr>
 </tbody>
@@ -63,7 +63,7 @@ In the early days of gaming all you had was an IP address and a download. These 
 <td><p><span class="RakNetBlueHeader">Client/Server where you host the servers
   </span><br>
   <br>
-  Usually used for massively multiplayer games, you will host one or more servers that contain the game world(s) provided to the players.This is also the most expensive solution since you have to have dedicated servers with guaranteed uptime and pay for bandwidth yourself. </p>
+  Usually used for massively multiplayer games, you will host one or more servers that contain the game world(s) provided to the players.This is also the most expensive solution since you have to have dedicated servers with guaranteed uptime and pay for bandwidth yourself. Many companies offer this service, including <a href="http://www.dx.net/raknet_dx.php">http://www.dx.net/raknet_dx.php</a></p>
   <p><span class="RakNetBlueHeader">Client/Server where users host the servers</span><br>
     <br>
     This is used for games where if the server drops, so does the entire game session. It is nonetheless common because it has the following advantages:</p>
@@ -83,7 +83,7 @@ In the early days of gaming all you had was an IP address and a download. These 
     <li>Have to deal with host migration</li>
     <li>Have to deal with contention. If two peers do the same mutually exclusive operation at the same time, how to resolve?</li>
   </ol>
-  <p>RakNet provides plugins to make peer to peer programming easier: <a href="natpunchthrough.html">NATPunchthrough</a>, <a href="readyevent.html">ReadyEvent</a>, <a href="connectiongraph.html">ConnectionGraph2</a>, <a href="fullyconnectedmesh2.html">FullyConnectedMesh2</a>, and <a href="teambalancer.html">TeamBalancer</a>. See the project ComprehensivePCGame in the RakNet solution for an example where all these plugins are combined together.<br>
+  <p>RakNet provides plugins to make peer to peer programming easier: <a href="natpunchthrough.html">NATPunchthrough</a>, <a href="readyevent.html">ReadyEvent</a>, <a href="connectiongraph.html">ConnectionGraph2</a>, <a href="fullyconnectedmesh2.html">FullyConnectedMesh2</a>, and <a href="teambalancer.html">TeamBalancer</a><br>
   </p></td>
 </tr>
 </tbody>
@@ -103,10 +103,10 @@ In the early days of gaming all you had was an IP address and a download. These 
 Rather than loading all objects in the level as done in single player, objects now need to be categorized according to how they influence networking<BR>
 <ol>
 <LI>Objects that still load normally are those that always exist in the level and are not referenced by network code.
-<LI>Objects may still load normally with the level, but need to be referred to by network code. For example, event triggers. These objects can either be loaded with a NetworkID (64 bit GUID), or the code at load time can gather these types of objects and assign them ids.
+<LI>Objects may still load normally with the level, but need to be referred to by network code. For example, triggers. These objects can either be loaded with a NetworkID (64 bit GUID), or the code at load time can gather these types of objects and assign them ids.
 <LI>Objects may or may not exist on level load need to be dynamically loaded. For example, such as players, spawned weapons, and bullets. Some of these objects should be preloaded during level load, on the assumption that they will eventually be spawned, to avoid runtime harddrive access.
 </OL>
-Generally, after level load the game does not start until all players have finished loading. Even on consoles, the disk may be scratched so systems may take a different amount of time to load a level. Before considering level load complete:<BR>
+Many games have a group of players start at the same time. In this case, the level should not start immediately upon load completion. Before considering level load complete:<BR>
 <OL>
 <LI>Transmit selections from other users that affect our load state. For example, what character models the other users picked
 <LI>Load the level as well as whatever models / textures, etc. are needed based on the other player's choices
@@ -136,23 +136,26 @@ Whether an object is in an fully interactive state depends on whether a unique h
 </OL>
 <p><span class="RakNetBlueHeader">Host Migration</span><br>
 <BR>
-Host migration is needed for peer to peer games, where one system is host. While some platforms offer a system for host migration, we have a cross-platform solution <A HREF="fullyconnectedmesh2.html">FullyConnectedMesh2</A>
+If all systems have full state information for all systems, then host migration is not necessary. On the host change message from <A HREF="fullyconnectedmesh2.html">FullyConnectedMesh2</A>, simply defer to that system. Otherwise, a host migration UI needs to be implemented.
+<OL>
+<LI>Pause the game.
+<LI>Transmit host migration data.
+<LI>Use <a href="readyevent.html">ReadyEvent</a> to continue game when all users are ready
+</OL>
 <p><span class="RakNetBlueHeader">Users</span><br>
-  <BR>
-  In-game, a user class needs to be implemented, containing information such as score, name, user id, achievements, etc. Some games may support multiple users on the same system, for example split-screen play
+<BR>
+A user class needs to be implemented, containing information such as score, name, user id, achievements, etc. Some games may support multiple users on the same system, for example split-screen play<BR>
 <p><span class="RakNetBlueHeader">Remote Systems</span><br>
 <BR>
 A Remote system class may need to be implemented, containing information such as level load state or a trust metric for cheat detection. If the game only supports one user per system, this is sometimes rolled into the User class.
 <BR>
-<br>
-<span class="RakNetBlueHeader">Teams</span><br>
-  <BR>
-  If the game supports teams, this needs to be serialized including players, team score, etc. Team management is supported with the <A HREF="teammanager.html">TeamManager</A> plugin. It supports any network topology, offline teams, and advanced features such as switching requested teams.<BR>
-  <BR>
-  <span class="RakNetBlueHeader">World / Game State</span><br>
-  <BR>
-  Not all game information is necessarily held by game objects, for example the match countdown. It can be represented using Replica3 as usual, or can be updated directly through network messages.
-  <BR>
+<p><span class="RakNetBlueHeader">Teams</span><br>
+<BR>
+If the game supports teams, this needs to be serialized including players, team score, etc. Team balancing can be done with the <A HREF="teambalancer.html">TeamBalancer</A> plugin<BR>
+<BR><span class="RakNetBlueHeader">World / Game State</span><br>
+<BR>
+Not all game information is necessarily held by game objects, for example the match countdown. It can be represented using Replica3 as usual, or can be updated directly through network messages.
+<BR>
 <p><span class="RakNetBlueHeader">Level End</span><br>
 <BR>
 When the host determines level end, the game needs to support the ability to pause gameplay, despawn all players, and show some kind of end-game score screen. During this phase score updates should be paused and other game events should halt. If sesssion statistics are transmitted to a server, it can be done at this time.<BR>
@@ -231,7 +234,7 @@ After a game session, sometimes a series of UI screens are shown after the level
 <table border="0" width="100%">
 <tbody>
 <tr>
-<td bgcolor="#2c5d92"><font color="#ffffff" face="Arial, Helvetica, sans-serif" size="3"><strong><span class="RakNetWhiteHeader">&nbsp;Persistent data</span></td>
+<td bgcolor="#2c5d92"><font color="#ffffff" face="Arial, Helvetica, sans-serif" size="3"><strong><span class="RakNetWhiteHeader">&nbsp;Lobbies and persistent data</span></td>
 </tr>
 </tbody>
 </table>
@@ -287,14 +290,16 @@ After a game session, sometimes a series of UI screens are shown after the level
 <tr>
 <td><font class="G10" color="#111122" face="Geneva, Verdana, Arial, Helvetica, sans-serif" size="1"><a href="index.html">Index</a><br>
     <a href="autopatcher.html">Autopatcher</a><br>
+    <a href="cloudcomputing.html">CloudComputing</a><br>
+    <a href="connectiongraph.html">ConnectionGraph2</a><br>
     <a href="crashreporter.html">CrashReporter</a><br>
     <a href="replicamanager3.html">ReplicaManager3</a><br>
     <a href="fullyconnectedmesh2.html">FullyConnectedMesh2</a>    <br>
-    <a href="http://masterserver2.raknet.com/">Master Server 2</a>    <br>
     <a href="natpunchthrough.html">NATPunchthrough</a>    <br>
     <a href="packetlogger.html">PacketLogger</a>    <br>
+    <a href="readyevent.html">ReadyEvent</a>    <br>
     <a href="RPC3Video.htm">RPC3</a>    <br>
-    <a href="teammanager.html">TeamManager</a><br>
+    <a href="teambalancer.html">TeamBalancer</a><br>
     <a href="sqlite3loggerplugin.html">SQLite3LoggerPlugin</a></p>
   <p><a href="packetlogger.html"></a><br>
   </p></td>

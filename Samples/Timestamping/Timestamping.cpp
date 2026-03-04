@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RakPeerInterface.h"
 
 #include "BitStream.h"
@@ -112,7 +102,7 @@ int main(void)
 			time=RakNet::GetTime();
 			bitStream.Write(time);
 			rakClient->Send(&bitStream, HIGH_PRIORITY, RELIABLE, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
-			printf("Sending message from client at time %" PRINTF_64_BIT_MODIFIER "u\n", time);
+			printf("Sending message from client at time %i\n", time);
 		}
 		else if (ch=='s' && rakServer->IsActive())
 		{
@@ -122,7 +112,7 @@ int main(void)
 			time=RakNet::GetTime();
 			bitStream.Write(time);
 			rakServer->Send(&bitStream, HIGH_PRIORITY, RELIABLE, 0, RakNet::UNASSIGNED_SYSTEM_ADDRESS, true);
-			printf("Sending packet from server at time %" PRINTF_64_BIT_MODIFIER "u\n", time);
+			printf("Sending packet from server at time %i\n", time);
 		}
 
         if (isServer==false)
@@ -141,7 +131,7 @@ int main(void)
 			// Write the bytes after the first to a variable.  That is the time the packet was sent.
 			RakNet::BitStream timeBS(packet->data+1, sizeof(RakNet::Time), false);
 			timeBS.Read(time);
-			printf("Time difference is %" PRINTF_64_BIT_MODIFIER "u\n", RakNet::GetTime() - time);
+			printf("Time difference is %i\n", RakNet::GetTime() - time);
 		}
 
 		if (packet)

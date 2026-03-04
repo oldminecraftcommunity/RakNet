@@ -1,16 +1,10 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 /// \file
 /// \brief A sample for the SQLite3Plugin, that creates a table to track connections on the server
 /// The SQLite3Plugin is used with SQLite version 3 to transmit over the network calls to sqlite3_exec
+///
+/// This file is part of RakNet Copyright 2003 Jenkins Software LLC
+///
+/// Usage of RakNet is subject to the appropriate license agreement.
 
 #include "RakPeerInterface.h"
 #include "SQLite3ServerPlugin.h"

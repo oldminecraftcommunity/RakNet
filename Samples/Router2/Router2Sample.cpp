@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RakPeerInterface.h"
 #include <stdio.h>
 #include "Kbhit.h"
@@ -83,7 +73,7 @@ void ReadAllPackets(void)
 			SystemAddress intermediateAddress=packet->systemAddress;
 			unsigned short port;
 			bs.Read(port);
-			intermediateAddress.SetPortHostOrder(port);
+			intermediateAddress.SetPort(port);
 
 			char str2[32];
 			intermediateAddress.ToString(true, str2);
@@ -104,11 +94,11 @@ int main(void)
 	printf("The router2 plugin allows you to connect to a system, routing messages through\n");
 	printf("a third system. This is useful if you can connect to the second system, but not\n");
 	printf("the third, due to NAT issues.\n");
-	printf("1. Start 4 instances, A, B, C, D\n");
-	printf("2. Connect A to B and C, B to C, and D to B and C.\n");
-	printf("3. On A press 'r' to start routing to D\n");
-	printf("4. Once connected, close the router that did the routing to reroute.\n");
-	printf("Difficulty: Advanced\n\n");;
+	printf("1. Start 2 routers\n");
+	printf("2. Start 2 endpoints, connecting both of them to both router(s).\n");
+	printf("3. Start routing through one of the routers\n");
+	printf("4. Once the connection has been established, close the selected router\nto reroute.\n");
+	printf("Difficulty: Advanced\n\n");
 
 	endpointGuid=UNASSIGNED_RAKNET_GUID;
 	char str[64], str2[64];
@@ -121,12 +111,12 @@ int main(void)
 
 	rakPeer->GetGuidFromSystemAddress(UNASSIGNED_SYSTEM_ADDRESS).ToString(str);
 	printf("My GUID is %s\n", str);
-	printf("Started on port %i\n", rakPeer->GetSocket(UNASSIGNED_SYSTEM_ADDRESS)->GetBoundAddress().GetPort());
+	printf("Started on port %i\n", rakPeer->GetSocket(UNASSIGNED_SYSTEM_ADDRESS)->boundAddress.GetPort());
 
 	rakPeer->SetTimeoutTime(3000,UNASSIGNED_SYSTEM_ADDRESS);
 	router2Plugin = new Router2;
-//	Router2DebugInterface r2di;
-//	router2Plugin->SetDebugInterface(&r2di);
+	Router2DebugInterface r2di;
+	router2Plugin->SetDebugInterface(&r2di);
 	rakPeer->AttachPlugin(router2Plugin);
 	router2Plugin->SetMaximumForwardingRequests(1);
 

@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "CloudServerHelper.h"
 #include "RakSleep.h"
 
@@ -24,6 +14,14 @@
 #include <stdlib.h>
 
 using namespace RakNet;
+
+const char *CloudServerHelper::dnsHost;
+const char *CloudServerHelper::usernameAndPassword;
+const char *CloudServerHelper::serverToServerPassword;
+unsigned short CloudServerHelper::serverPort;
+unsigned short CloudServerHelper::allowedIncomingConnections;
+unsigned short CloudServerHelper::allowedOutgoingConnections;
+
 #define CLOUD_SERVER_CONNECTION_COUNT_PRIMARY_KEY "CloudConnCount"
 
 bool CloudServerHelperFilter::OnPostRequest(RakNetGUID clientGuid, SystemAddress clientAddress, CloudKey key, uint32_t dataLength, const char *data)
@@ -39,33 +37,12 @@ bool CloudServerHelperFilter::OnReleaseRequest(RakNetGUID clientGuid, SystemAddr
 bool CloudServerHelperFilter::OnGetRequest(RakNetGUID clientGuid, SystemAddress clientAddress, CloudQuery &query, DataStructures::List<RakNetGUID> &specificSystems) {return true;}
 bool CloudServerHelperFilter::OnUnsubscribeRequest(RakNetGUID clientGuid, SystemAddress clientAddress, DataStructures::List<CloudKey> &cloudKeys, DataStructures::List<RakNetGUID> &specificSystems) {return true;}
 
+
 bool CloudServerHelper::ParseCommandLineParameters(int argc, char **argv)
 {
-	char *DEFAULT_SERVER_TO_SERVER_PASSWORD="qwerty1234";
-	const unsigned short DEFAULT_SERVER_PORT=60000;
-	const unsigned short DEFAULT_ALLOWED_INCOMING_CONNECTIONS=1024;
-	const unsigned short DEFAULT_ALLOWED_OUTGOING_CONNECTIONS=64;
-
-	if (argc<2) serverToServerPassword=DEFAULT_SERVER_TO_SERVER_PASSWORD;
-	else serverToServerPassword=argv[1];
-
-	if (argc<3) rakPeerPort=DEFAULT_SERVER_PORT;
-	else rakPeerPort=atoi(argv[2]);
-
-	if (argc<4) allowedIncomingConnections=DEFAULT_ALLOWED_INCOMING_CONNECTIONS;
-	else allowedIncomingConnections=atoi(argv[3]);
-
-	if (argc<5) allowedOutgoingConnections=DEFAULT_ALLOWED_OUTGOING_CONNECTIONS;
-	else allowedOutgoingConnections=atoi(argv[4]);
-
-	return true;
-}
-
-bool CloudServerHelper_DynDns::ParseCommandLineParameters(int argc, char **argv)
-{
-	char *DEFAULT_DNS_HOST="test.dnsalias.net";
-	char *DEFAULT_USERNAME_AND_PASSWORD="test:test";
-	char *DEFAULT_SERVER_TO_SERVER_PASSWORD="qwerty1234";
+	const char *DEFAULT_DNS_HOST="test.dnsalias.net";
+	const char *DEFAULT_USERNAME_AND_PASSWORD="test:test";
+	const char *DEFAULT_SERVER_TO_SERVER_PASSWORD="qwerty1234";
 	const unsigned short DEFAULT_SERVER_PORT=60000;
 	const unsigned short DEFAULT_ALLOWED_INCOMING_CONNECTIONS=1024;
 	const unsigned short DEFAULT_ALLOWED_OUTGOING_CONNECTIONS=64;
@@ -78,21 +55,21 @@ bool CloudServerHelper_DynDns::ParseCommandLineParameters(int argc, char **argv)
 		return false;
 	}
 	dnsHost=argv[1];
-	dynDNSUsernameAndPassword=argv[2];
+	usernameAndPassword=argv[2];
 	serverToServerPassword=argv[3];
 #else
 	if (argc<2) dnsHost=DEFAULT_DNS_HOST;
 	else dnsHost=argv[1];
 
-	if (argc<3) dynDNSUsernameAndPassword=DEFAULT_USERNAME_AND_PASSWORD;
-	else dynDNSUsernameAndPassword=argv[2];
+	if (argc<3) usernameAndPassword=DEFAULT_USERNAME_AND_PASSWORD;
+	else usernameAndPassword=argv[2];
 
 	if (argc<4) serverToServerPassword=DEFAULT_SERVER_TO_SERVER_PASSWORD;
 	else serverToServerPassword=argv[3];
 #endif
 
-	if (argc<5) rakPeerPort=DEFAULT_SERVER_PORT;
-	else rakPeerPort=atoi(argv[4]);
+	if (argc<5) serverPort=DEFAULT_SERVER_PORT;
+	else serverPort=atoi(argv[4]);
 
 	if (argc<6) allowedIncomingConnections=DEFAULT_ALLOWED_INCOMING_CONNECTIONS;
 	else allowedIncomingConnections=atoi(argv[5]);
@@ -123,7 +100,7 @@ void CloudServerHelper::PrintHelp(void)
 
 bool CloudServerHelper::StartRakPeer(RakNet::RakPeerInterface *rakPeer)
 {
-	RakNet::SocketDescriptor sd(RakNet::CloudServerHelper::rakPeerPort,0);
+	RakNet::SocketDescriptor sd(RakNet::CloudServerHelper::serverPort,0);
 	RakNet::StartupResult sr = rakPeer->Startup(RakNet::CloudServerHelper::allowedIncomingConnections+RakNet::CloudServerHelper::allowedOutgoingConnections,&sd,1);
 	if (sr!=RakNet::RAKNET_STARTED)
 	{
@@ -131,13 +108,13 @@ bool CloudServerHelper::StartRakPeer(RakNet::RakPeerInterface *rakPeer)
 		return false;
 	}
 	rakPeer->SetMaximumIncomingConnections(RakNet::CloudServerHelper::allowedIncomingConnections);
-	//rakPeer->SetTimeoutTime(60000,UNASSIGNED_SYSTEM_ADDRESS);
+	rakPeer->SetTimeoutTime(60000,UNASSIGNED_SYSTEM_ADDRESS);
 	return true;
 }
 
 Packet *CloudServerHelper::ConnectToRakPeer(const char *host, unsigned short port, RakPeerInterface *rakPeer)
 {
-	printf("RakPeer: Connecting to %s\n", host);
+	printf("Connecting to %s\n", host);
 	ConnectionAttemptResult car;
 	car = rakPeer->Connect(host, port, 0, 0);
 	if (car!=CONNECTION_ATTEMPT_STARTED)
@@ -192,12 +169,13 @@ Packet *CloudServerHelper::ConnectToRakPeer(const char *host, unsigned short por
 		RakSleep(30);
 	}
 }
-bool CloudServerHelper_DynDns::SetHostDNSToThisSystemBlocking(void)
+
+bool CloudServerHelper::UpdateHostDNS(RakNet::DynDNS *dynDNS)
 {
-	dynDNS->UpdateHostIPAsynch(
-		dnsHost,
+	dynDNS->UpdateHostIP(
+		RakNet::CloudServerHelper::dnsHost,
 		0,
-		dynDNSUsernameAndPassword);
+		RakNet::CloudServerHelper::usernameAndPassword);
 
 	// Wait for the DNS update to complete
 	while (1)
@@ -271,12 +249,12 @@ void CloudServerHelper::SetupPlugins(
 	// Do not add systems to the graph unless first validated as a server through the TwoWayAuthentication plugin
 	connectionGraph2->SetAutoProcessNewConnections(false);
 }
-void CloudServerHelper::OnPacket(Packet *packet, RakPeerInterface *rakPeer, CloudClient *cloudClient, RakNet::CloudServer *cloudServer, RakNet::FullyConnectedMesh2 *fullyConnectedMesh2, TwoWayAuthentication *twoWayAuthentication, ConnectionGraph2 *connectionGraph2)
+void CloudServerHelper::OnPacket(Packet *packet, RakPeerInterface *rakPeer, CloudClient *cloudClient, RakNet::CloudServer *cloudServer, RakNet::FullyConnectedMesh2 *fullyConnectedMesh2, TwoWayAuthentication *twoWayAuthentication, ConnectionGraph2 *connectionGraph2, DynDNS *dynDNS)
 {
 	switch (packet->data[0])
 	{
 	case ID_FCM2_NEW_HOST:
-		RakNet::CloudServerHelper::OnFCMNewHost(packet, rakPeer);
+		RakNet::CloudServerHelper::OnFCMNewHost(packet, rakPeer, dynDNS);
 		break;
 	case ID_CONNECTION_REQUEST_ACCEPTED:
 		twoWayAuthentication->Challenge("CloudServerHelperS2SPassword", packet->guid);
@@ -286,11 +264,8 @@ void CloudServerHelper::OnPacket(Packet *packet, RakPeerInterface *rakPeer, Clou
 		RakNet::CloudServerHelper::OnConnectionCountChange(rakPeer, cloudClient);
 		break;
 	case ID_CONNECTION_LOST:
-	//	printf("ID_CONNECTION_LOST (UDP) from %s\n", packet->systemAddress.ToString(true));
-		RakNet::CloudServerHelper::OnConnectionCountChange(rakPeer, cloudClient);
-		break;
 	case ID_DISCONNECTION_NOTIFICATION:
-	//	printf("ID_DISCONNECTION_NOTIFICATION (UDP) from %s\n", packet->systemAddress.ToString(true));
+		printf("Lost connection to %s\n", packet->systemAddress.ToString(true));
 		RakNet::CloudServerHelper::OnConnectionCountChange(rakPeer, cloudClient);
 		break;
 	case ID_TWO_WAY_AUTHENTICATION_INCOMING_CHALLENGE_SUCCESS:
@@ -310,15 +285,7 @@ void CloudServerHelper::OnPacket(Packet *packet, RakPeerInterface *rakPeer, Clou
 		break;
 	}
 }
-bool CloudServerHelper::Update(void)
-{
-	return true;
-}
-CloudServerHelper_DynDns::CloudServerHelper_DynDns(DynDNS *_dynDns)
-{
-	dynDNS = _dynDns;
-}
-bool CloudServerHelper_DynDns::Update(void)
+bool CloudServerHelper::Update(DynDNS *dynDNS)
 {
 	// Keep DNS updated if needed
 	if (dynDNS->IsRunning())
@@ -334,11 +301,7 @@ bool CloudServerHelper_DynDns::Update(void)
 	}
 	return true;
 }
-void CloudServerHelper::OnFCMNewHost(Packet *packet, RakPeerInterface *rakPeer)
-{
-
-}
-void CloudServerHelper_DynDns::OnFCMNewHost(Packet *packet, RakPeerInterface *rakPeer)
+void CloudServerHelper::OnFCMNewHost(Packet *packet, RakPeerInterface *rakPeer, DynDNS *dynDNS)
 {
 	RakAssert(packet->data[0]==ID_FCM2_NEW_HOST);
 	RakNet::BitStream bsIn(packet->data, packet->length, false);
@@ -351,10 +314,10 @@ void CloudServerHelper_DynDns::OnFCMNewHost(Packet *packet, RakPeerInterface *ra
 		printf("Assuming host. Updating DNS\n");
 
 		// Change dynDNS to point to us
-		dynDNS->UpdateHostIPAsynch(
-			dnsHost,
+		dynDNS->UpdateHostIP(
+			RakNet::CloudServerHelper::dnsHost,
 			0,
-			dynDNSUsernameAndPassword);
+			RakNet::CloudServerHelper::usernameAndPassword);
 	}
 }
 void CloudServerHelper::OnConnectionCountChange(RakPeerInterface *rakPeer, CloudClient *cloudClient)
@@ -366,58 +329,42 @@ void CloudServerHelper::OnConnectionCountChange(RakPeerInterface *rakPeer, Cloud
 	bs.Write(numberOfSystems);
 	cloudClient->Post(&cloudKey, bs.GetData(), bs.GetNumberOfBytesUsed(), rakPeer->GetMyGUID());
 }
-int CloudServerHelper_DynDns::OnJoinCloudResult(
-	Packet *packet,
+int CloudServerHelper::JoinCloud(
 	RakNet::RakPeerInterface *rakPeer,
 	RakNet::CloudServer *cloudServer,
 	RakNet::CloudClient *cloudClient,
 	RakNet::FullyConnectedMesh2 *fullyConnectedMesh2,
 	RakNet::TwoWayAuthentication *twoWayAuthentication,
 	RakNet::ConnectionGraph2 *connectionGraph2,
-	const char *rakPeerIpOrDomain,
-	char myPublicIP[32]
+	DynDNS *dynDNS
 	)
 {
-	if (packet->data[0]==ID_CONNECTION_ATTEMPT_FAILED)
-	{
-		printf("Failed connection. Changing DNS to point to this system.\n");
-
-		if (SetHostDNSToThisSystemBlocking()==false)
-			return 1;
-
-		// dynDNS gets our public IP when it succeeds
-		strcpy( myPublicIP, dynDNS->GetMyPublicIP());
-	}
-
-	return CloudServerHelper::OnJoinCloudResult(packet, rakPeer, cloudServer, cloudClient, fullyConnectedMesh2, twoWayAuthentication, connectionGraph2, rakPeerIpOrDomain, myPublicIP);
-}
-int CloudServerHelper::OnJoinCloudResult(
-							  Packet *packet,
-							  RakNet::RakPeerInterface *rakPeer,
-							  RakNet::CloudServer *cloudServer,
-							  RakNet::CloudClient *cloudClient,
-							  RakNet::FullyConnectedMesh2 *fullyConnectedMesh2,
-							  RakNet::TwoWayAuthentication *twoWayAuthentication,
-							  RakNet::ConnectionGraph2 *connectionGraph2,
-							  const char *rakPeerIpOrDomain,
-							  char myPublicIP[32]
-							  )
-{
-
 	RakNet::MessageID result;
 	SystemAddress packetAddress;
 	RakNetGUID packetGuid;
+	Packet *packet;
+	char myPublicIP[32];
+
+	// Reset plugins
+	cloudServer->Clear();
+	fullyConnectedMesh2->Clear();
+
+	// ---- CONNECT TO EXISTING SERVER ----
+	packet = RakNet::CloudServerHelper::ConnectToRakPeer(RakNet::CloudServerHelper::dnsHost, RakNet::CloudServerHelper::serverPort, rakPeer);
+	if (packet==0)
+		return 1;
 	result = packet->data[0];
 	packetAddress = packet->systemAddress;
 	packetGuid = packet->guid;
+	rakPeer->DeallocatePacket(packet);
 
 	if (result==ID_CONNECTION_REQUEST_ACCEPTED)
 	{
-		printf("Connected to host %s.\n", rakPeerIpOrDomain);
+		printf("Connected to host %s.\n", RakNet::CloudServerHelper::dnsHost);
 
 		// We connected through a public IP.
 		// Our external IP should also be public
-		// rakPeer->GetExternalID(packetAddress).ToString(false, myPublicIP);
+		rakPeer->GetExternalID(packetAddress).ToString(false, myPublicIP);
 
 		// Log in to the remote server using two way authentication
 		result = RakNet::CloudServerHelper::AuthenticateRemoteServerBlocking(rakPeer, twoWayAuthentication, packetGuid);
@@ -451,20 +398,18 @@ int CloudServerHelper::OnJoinCloudResult(
 	{
 		printf("Connected to self. DNS entry already points to this server.\n");
 
-		/*
-		if (SetHostDNSToThisSystemBlocking()==false)
-		return 1;
-
-		// dynDNS gets our public IP when it succeeds
-		strcpy( myPublicIP, dynDNS->GetMyPublicIP());
-		*/
-
 		// dnsHost is always public, so if I can connect through it that's my public IP
-		RakNetSocket2::DomainNameToIP( rakPeerIpOrDomain, myPublicIP );
+		strcpy( myPublicIP, ( char* ) SocketLayer::DomainNameToIP( RakNet::CloudServerHelper::dnsHost ));
 	}
 	else if (result==ID_CONNECTION_ATTEMPT_FAILED)
 	{
-		
+		printf("Failed connection. Changing DNS to point to this system.\n");
+
+		if (RakNet::CloudServerHelper::UpdateHostDNS(dynDNS)==false)
+			return 1;
+
+		// dynDNS gets our public IP when it succeeds
+		strcpy( myPublicIP, dynDNS->GetMyPublicIP());
 	}
 	else
 	{
@@ -496,7 +441,7 @@ int CloudServerHelper::OnJoinCloudResult(
 
 	// Force the external server address for queries. Otherwise it would report 127.0.0.1 since the client is on localhost
 	SystemAddress forceAddress;
-	forceAddress.FromString(myPublicIP,RakNet::CloudServerHelper::rakPeerPort);
+	forceAddress.FromString(myPublicIP,RakNet::CloudServerHelper::serverPort);
 	cloudServer->ForceExternalSystemAddress(forceAddress);
 
 	if (result==ID_TWO_WAY_AUTHENTICATION_OUTGOING_CHALLENGE_SUCCESS)
@@ -511,32 +456,4 @@ int CloudServerHelper::OnJoinCloudResult(
 		cloudClient->Post(&cloudKey, bs.GetData(), bs.GetNumberOfBytesUsed(), rakPeer->GetMyGUID());
 	}
 	return 0;
-}
-int CloudServerHelper::JoinCloud(
-	RakNet::RakPeerInterface *rakPeer,
-	RakNet::CloudServer *cloudServer,
-	RakNet::CloudClient *cloudClient,
-	RakNet::FullyConnectedMesh2 *fullyConnectedMesh2,
-	RakNet::TwoWayAuthentication *twoWayAuthentication,
-	RakNet::ConnectionGraph2 *connectionGraph2,
-	const char *rakPeerIpOrDomain
-	)
-{
-
-	Packet *packet;
-	char myPublicIP[32];
-
-	// Reset plugins
-	cloudServer->Clear();
-	fullyConnectedMesh2->Clear();
-
-	// ---- CONNECT TO EXISTING SERVER ----
-	packet = RakNet::CloudServerHelper::ConnectToRakPeer(rakPeerIpOrDomain, RakNet::CloudServerHelper::rakPeerPort, rakPeer);
-	if (packet==0)
-		return 1;
-	
-
-	int res = OnJoinCloudResult(packet, rakPeer, cloudServer, cloudClient, fullyConnectedMesh2, twoWayAuthentication, connectionGraph2, rakPeerIpOrDomain, myPublicIP);
-	rakPeer->DeallocatePacket(packet);
-	return res;
 }

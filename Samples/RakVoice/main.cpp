@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
@@ -151,9 +141,9 @@ int main(void)
 		printf("Enter IP of facilitator (enter for default): ");
 		Gets(facilitatorIP,sizeof(facilitatorIP));
 		if (facilitatorIP[0]==0)
-			strcpy(facilitatorIP, "natpunch.jenkinssoftware.com");
+			strcpy(facilitatorIP, "94.198.81.195");
 		facilitator.FromString(facilitatorIP);
-		facilitator.SetPortHostOrder(NAT_PUNCHTHROUGH_FACILITATOR_PORT);
+		facilitator.SetPort(NAT_PUNCHTHROUGH_FACILITATOR_PORT);
 		rakPeer->Connect(facilitatorIP, NAT_PUNCHTHROUGH_FACILITATOR_PORT, 0, 0);
 		printf("Connecting to facilitator...\n");
 	}

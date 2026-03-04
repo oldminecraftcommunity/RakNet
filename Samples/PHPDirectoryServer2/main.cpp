@@ -1,15 +1,9 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 /// \file
 /// \brief This file is a sample for using HTTPConnection and PHPDirectoryServer2
+///
+/// This file is part of RakNet Copyright 2008 Kevin Jenkins.
+///
+/// Usage of RakNet is subject to the appropriate license agreement.
 
 
 #include "TCPInterface.h"
@@ -401,9 +395,9 @@ void TestPHPDirectoryServer(int argc, char **argv)
 	printf("Set columns and one row for your game, and upload it to a\nviewable and downloadable webpage.\n");
 	printf("Difficulty: Intermediate\n\n");
 
-// 	tcp = RakNet::OP_NEW<TCPInterface>(_FILE_AND_LINE_);
-// 	httpConnection = RakNet::OP_NEW<HTTPConnection>(_FILE_AND_LINE_);
-// 	phpDirectoryServer2 = RakNet::OP_NEW<PHPDirectoryServer2>(_FILE_AND_LINE_);
+	tcp = RakNet::OP_NEW<TCPInterface>(_FILE_AND_LINE_);
+	httpConnection = RakNet::OP_NEW<HTTPConnection>(_FILE_AND_LINE_);
+	phpDirectoryServer2 = RakNet::OP_NEW<PHPDirectoryServer2>(_FILE_AND_LINE_);
 
 
 
@@ -466,7 +460,9 @@ void TestGet(void)
 {
 	printf("This is NOT a reliable way to download from a website. Use libcurl instead.\n");
 	httpConnection->Init(tcp, "jenkinssoftware.com");
-	httpConnection->Get("/trivia/ranking.php?t=single&places=6&top");
+	httpConnection->Get("/trivia/ranking.php?t=single&places=50&score=30000");
+	httpConnection->Init(tcp, "www.google.com");
+	httpConnection->Get("index.html");
 	while (1)
 	{
 		Packet *packet = tcp->Receive();

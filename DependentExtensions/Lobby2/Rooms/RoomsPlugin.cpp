@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RoomsPlugin.h"
 #include "BitStream.h"
 #include "RoomsErrorCodes.h"
@@ -1656,13 +1646,14 @@ RoomsPlugin::RoomsPluginParticipant* RoomsPlugin::GetParticipantByHandle(RakNet:
 	{
 		RoomsPluginParticipant *rp = roomsParticipants.GetElementFromKey(handle);
 		RakAssert(IsServer());
-		// 08/21/2012 - Uncommented: This was a bug with SendInvite_Func checking the sender's address against the invitees address
 		// 10/27/2010 - what was this for? Caused the bug http://www.jenkinssoftware.com/forum/index.php?topic=3720.0;topicseen
 		// This apparently validates the systemAddress to match the one in the function call
+		/*
 		if (senderAddress==RakNet::UNASSIGNED_SYSTEM_ADDRESS || senderAddress==serverAddress)
 			return rp;
 		if (rp->GetSystemAddress()!=senderAddress)
 			return 0;
+		*/
 		return rp;
 	}
 	return 0;
@@ -1778,7 +1769,7 @@ void RoomsPlugin::SendInvite_Callback( const SystemAddress &senderAddress, SendI
 	RoomsPluginParticipant* roomsPluginParticipant = ValidateUserHandle(callResult, senderAddress);
 	if (roomsPluginParticipant==0)
 		return;
-	RoomsPluginParticipant* inviteeId = GetParticipantByHandle( callResult->inviteeName, UNASSIGNED_SYSTEM_ADDRESS );
+	RoomsPluginParticipant* inviteeId = GetParticipantByHandle( callResult->inviteeName, senderAddress );
 	if (inviteeId==0)
 	{
 		callResult->resultCode=REC_SEND_INVITE_RECIPIENT_NOT_ONLINE;
@@ -1857,7 +1848,7 @@ void RoomsPlugin::GrantModerator_Callback( const SystemAddress &senderAddress, G
 	RoomsPluginParticipant* roomsPluginParticipant = ValidateUserHandle(callResult, senderAddress);
 	if (roomsPluginParticipant==0)
 		return;
-	RoomsPluginParticipant* newModerator = GetParticipantByHandle( callResult->newModerator, UNASSIGNED_SYSTEM_ADDRESS );
+	RoomsPluginParticipant* newModerator = GetParticipantByHandle( callResult->newModerator, senderAddress );
 	if (newModerator==0)
 	{
 		callResult->resultCode=REC_GRANT_MODERATOR_NEW_MODERATOR_NOT_ONLINE;

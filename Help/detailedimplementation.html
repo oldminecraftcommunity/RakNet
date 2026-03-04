@@ -7,7 +7,7 @@
 <meta name="title" content="RakNet - Advanced multiplayer game networking API">
 </HEAD>
 <BODY BGCOLOR="#ffffff" LINK="#003399" vlink="#003399" alink="#003399" LEFTMARGIN="0" TOPMARGIN="0" MARGINWIDTH="0" MARGINHEIGHT="0"">
-<img src="RakNet_Icon_Final-copy.jpg" alt="Oculus VR, Inc." width="150" height="150"><BR>
+<img src="RakNet_Icon_Final-copy.jpg" alt="Jenkins Software" width="150" height="150"><BR>
 <BR>
 
 <table width="100%" border="0"><tr><td bgcolor="#2c5d92" class="RakNetWhiteHeader">
@@ -17,7 +17,7 @@
   <tr>
     <td>Implementation <BR>
       <BR>
-For basic network communication, all you have to do is get an instance of RakPeer in your program.<BR>
+To implement RakNet all you have to do is get an instance of RakPeer in your program.<BR>
 <BR>
 These are the most common headers you'll need:</td>
   </tr>
@@ -34,7 +34,7 @@ These are the most common headers you'll need:</td>
 #include "RakNetTypes.h"<BR>
 <BR>
 MessageIdentifiers.h contains a giant enumeration representing the native message identifiers that RakNet uses to send you messages, such as disconnection notifications.  Since you will probably want to define your own message identifiers, your enumerations should start at the 
-        highest enumeration in MessageIdentifiers.h + 1<font color="#666666" size="2" face="Geneva, Verdana, Arial, Helvetica, sans-serif">RakPeerInterface.h is an interface for the RakPeer 
+        highest enumeration in MessageIdentifiers.h + 1<font color="#666666" size="2" face="Geneva, Verdana, Arial, Helvetica, sans-serif">. RakNetworkFactory.h is an implementation of the factory design pattern, used to get a pointer to RakPeerInterface.  This is necessary to use the DLL.  RakPeerInterface.h is an interface for the RakPeer 
     class. RakNetTypes.h defines the structures used in RakNet, including <I>SystemAddress</I> - a unique identifier for systems, and <I>Packet</I> which the API returns to you when you get data or when it needs to send you a message.</td>
   </tr>
 </table>
@@ -62,12 +62,14 @@ For example:<BR></td>
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="10">
   <tr>
-    <td class="RakNetManualTextBody">peer->Startup(1, &SocketDescriptor(), 1)<BR>
-peer->Connect(serverIP, serverPort, 0, 0);<BR>
+    <td class="RakNetManualTextBody">peer->Startup(1,  &SocketDescriptor(), 1)<BR>
+peer
+    ->Connect(serverIP, serverPort, 0, 0);<BR>
     <BR>
 The call to Startup starts the network threads.<br>
 The first parameter is the maximum mumber of connections. For a pure client, we use 1.<br>
-The second parameter (SocketDescriptor()), specifies the ports/addresses to listen on . Since we want a client, we don't need to specify anything.<BR>
+The second parameter (set to 30 in this example) is the thread sleep timer.  A value of 0 is good for games that need fast responses, such as a shooter.  Otherwise, a value of 30 will give good response times and will require very little CPU usage.<br>
+The third parameter (SocketDescriptor()), specifies the ports/addresses to listen on . Since we want a client, we don't need to specify anything.<BR>
 <br>
 The call to Connect connects to the server.<br>
 The first parameter, serverIP, is the IP address or domain of the server.  If you want to connect to your own system, such as when running two copies of the same program, use "127.0.0.1" or "localhost" which is accepted notation for your own system.  For IPV6, this is &quot;::1&quot;.<BR>
@@ -98,7 +100,7 @@ Starting as a server is similar.</td>
       peer->SetMaximumIncomingConnections(maxPlayersPerServer); </p>
       <p>The first parameter to Startup is how many simultaneous client connections to allow. The second and third parameter tells what port to listen on.<br>
         The call to SetMaximumIncomingConnections sets how many incoming connections are allowed.<BR>
-        Keep in mind that the actual number of players you could have playing is one more than the number of clients you support if you program your game to allow the server to act as a player.  If your server is a dedicated server or if you program your game to have both a client and a server on the same system then obviously the number of people who could play would change accordingly.<BR>
+        Keep in mind that the actual number of players you could have playing is one more than the number of clients you support if you program your game to allow the server to act as a player.  If your server is a dedicated server or if you program your game to have both a client and a server on the same system (not recommended) then obviously the number of people who could play would change accordingly.<BR>
   <BR>
       </p></td>
   </tr>
@@ -110,8 +112,8 @@ Starting as a server is similar.</td>
 </table>
 <table width="100%" border="0" cellspacing="0" cellpadding="10">
   <tr>
-    <td class="RakNetManualTextBody">RakNet::SocketDescriptor sd(serverPort,0);<br>
-peer-&gt;Startup(maxConnectionsAllowed, &amp;sd, 1);<BR>
+    <td class="RakNetManualTextBody">RakNet::SocketDescriptor sd(60000,0);<br>
+      peer->Startup(10,  &amp;sd, 1);<BR>
 peer->SetMaximumIncomingConnections(4);<BR>
 <BR>
 Startup sets 10 allowable connections.  An allowable connection is either incoming or outgoing.  It uses port 60000 to receive data.<br>

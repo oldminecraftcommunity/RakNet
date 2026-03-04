@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "Lobby2Message_Steam.h"
 #include "steam_api.h"
 #include "Lobby2Client_Steam_Impl.h"
@@ -40,8 +30,7 @@ Console_SearchRooms_Steam::Console_SearchRooms_Steam()
 }
 Console_SearchRooms_Steam::~Console_SearchRooms_Steam()
 {
-	// Cast to make sure destructor gets called
-	RakNet::OP_DELETE((CCallResult<Lobby2Client_Steam_Impl, LobbyMatchList_t>*)m_SteamCallResultLobbyMatchList, _FILE_AND_LINE_);
+	RakNet::OP_DELETE(m_SteamCallResultLobbyMatchList, _FILE_AND_LINE_);
 }
 bool Console_SearchRooms_Steam::ClientImpl( RakNet::Lobby2Plugin *client)
 {
@@ -59,9 +48,9 @@ void Console_SearchRooms_Steam::DebugMsg(RakNet::RakString &out) const
 		return;
 	}
 	out.Set("%i rooms found", roomNames.GetSize());
-	for (DataStructures::DefaultIndexType i=0; i < roomNames.GetSize(); i++)
+	for (unsigned int i=0; i < roomNames.GetSize(); i++)
 	{
-		out += RakNet::RakString("\n%i. %s. ID=%" PRINTF_64_BIT_MODIFIER "u", i+1, roomNames[i].C_String(), roomIds[i]);
+		out += RakNet::RakString("\n%i. %s. ID=%"PRINTF_64_BIT_MODIFIER"u", i+1, roomNames[i].C_String(), roomIds[i]);
 	}
 }
 bool Console_GetRoomDetails_Steam::ClientImpl( RakNet::Lobby2Plugin *client)
@@ -78,8 +67,7 @@ Console_CreateRoom_Steam::Console_CreateRoom_Steam()
 }
 Console_CreateRoom_Steam::~Console_CreateRoom_Steam()
 {
-	// Cast to make sure destructor gets called
-	RakNet::OP_DELETE((CCallResult<Lobby2Client_Steam_Impl, LobbyCreated_t>*)m_SteamCallResultLobbyCreated, _FILE_AND_LINE_);
+	RakNet::OP_DELETE(m_SteamCallResultLobbyCreated, _FILE_AND_LINE_);
 }
 bool Console_CreateRoom_Steam::ClientImpl( RakNet::Lobby2Plugin *client)
 {
@@ -99,8 +87,7 @@ Console_JoinRoom_Steam::Console_JoinRoom_Steam()
 }
 Console_JoinRoom_Steam::~Console_JoinRoom_Steam()
 {
-	// Cast to make sure destructor gets called
-	RakNet::OP_DELETE((CCallResult<Lobby2Client_Steam_Impl, LobbyEnter_t>*)m_SteamCallResultLobbyEntered, _FILE_AND_LINE_);
+	RakNet::OP_DELETE(m_SteamCallResultLobbyEntered, _FILE_AND_LINE_);
 }
 bool Console_JoinRoom_Steam::ClientImpl( RakNet::Lobby2Plugin *client)
 {

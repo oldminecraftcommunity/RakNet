@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #ifndef __LOBBY_2_MESSAGE_H
 #define __LOBBY_2_MESSAGE_H
 
@@ -1217,6 +1207,15 @@ struct CDKey_FlagStolen : public Lobby2Message
 /// <LI>If this user was banned with a ban still in effect via System_BanUser
 /// </OL>
 /// If all checks pass, store in a logging table that the user has logged in at this time. No status flag needs be set, this will be done in C++.
+/// \param[in] userHandle 
+/// \param[in] userPassword 
+/// \param[in] titleName
+/// \param[in] titleSecretKey
+/// \param[in] checkCDKey
+/// \param[out] userPrimaryKey Only returned on success
+/// \param[out] bannedReason Only returned on banned
+/// \param[out] whenBanned Only returned on banned
+/// \param[out] banningModeratorID Only returned on banned
 /// \ingroup LOBBY_2_COMMANDS
 struct Client_Login : public Lobby2Message
 {
@@ -3189,9 +3188,8 @@ struct Notification_Friends_StatusChange : public Lobby2Message
 	enum Status
 	{
 		FRIEND_LOGGED_IN,
-		FRIEND_LOGGED_IN_DIFFERENT_CONTEXT, // PS3 only
+		FRIEND_LOGGED_IN_DIFFERENT_CONTEXT, // Used for consoles, different game
 		FRIEND_LOGGED_OFF,
-		FRIEND_AFK, // Vita only
 		FRIEND_ACCOUNT_WAS_DELETED,
 		YOU_WERE_REMOVED_AS_A_FRIEND,
 		GOT_INVITATION_TO_BE_FRIENDS,

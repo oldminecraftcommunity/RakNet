@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RoomsContainer.h"
 #include "ProfanityFilter.h"
 #include "RakAssert.h"
@@ -83,7 +73,7 @@ void NetworkedQuickJoinUser::Serialize(bool writeToBitstream, RakNet::BitStream 
 {
 	query.Serialize(writeToBitstream, bitStream);
 	bitStream->Serialize(writeToBitstream,timeout);
-	bitStream->Serialize(writeToBitstream,minimumPlayers);
+	bitStream->Serialize(writeToBitstream,query);
 }
 // ----------------------------  RoomMember  ----------------------------
 
@@ -202,15 +192,16 @@ void JoinedRoomResult::Serialize(bool writeToBitstream, RakNet::BitStream *bitSt
 	{
 		joiningMemberName=joiningMember->GetName();
 		joiningMemberAddress=joiningMember->GetSystemAddress();
-		joiningMemberGuid=joiningMember->GetGUID();
 	}
 	bitStream->Serialize(writeToBitstream, acceptedInvitorName);
 	bitStream->Serialize(writeToBitstream, joiningMemberName);
 	bitStream->Serialize(writeToBitstream, acceptedInvitorAddress);
 	bitStream->Serialize(writeToBitstream, joiningMemberAddress);
-	bitStream->Serialize(writeToBitstream, joiningMemberGuid);
 	roomDescriptor.FromRoom(roomOutput, agrc);
 	roomDescriptor.Serialize(writeToBitstream, bitStream);
+
+//	if (writeToBitstream)
+//		RakAssert(roomOutput->GetNumericProperty(DefaultRoomColumns::TC_USED_SLOTS)==roomOutput->roomMemberList.Size()-1);
 }
 // ----------------------------  RoomDescriptor  ----------------------------
 void RoomDescriptor::FromRoom(Room *room, AllGamesRoomsContainer *agrc)
@@ -571,10 +562,7 @@ void AllGamesRoomsContainer::DestroyRoomIfDead(Room *room)
 		return;
 	unsigned int i;
 	for (i=0; i < perGamesRoomsContainers.Size(); i++)
-	{
-		if (perGamesRoomsContainers[i]->DestroyRoomIfDead(room))
-			break;
-	}
+		perGamesRoomsContainers[i]->DestroyRoomIfDead(room);
 }
 void AllGamesRoomsContainer::ChangeHandle(RakNet::RakString oldHandle, RakNet::RakString newHandle)
 {
@@ -1188,15 +1176,10 @@ RoomsErrorCode PerGameRoomsContainer::GetInvitesToParticipant(RoomsParticipant* 
 		rooms[i]->GetInvitesToParticipant(roomsParticipant, invites);
 	return REC_SUCCESS;
 }
-bool PerGameRoomsContainer::DestroyRoomIfDead(Room *room)
+void PerGameRoomsContainer::DestroyRoomIfDead(Room *room)
 {
-	if (roomsTable.GetRowByID(room->GetID())==room->tableRow)
-	{
-		roomsTable.RemoveRow(room->GetID());
-		delete room;
-		return true;
-	}
-	return false;
+	roomsTable.RemoveRow(room->GetID());
+	delete room;
 }
 void PerGameRoomsContainer::ChangeHandle(RakNet::RakString oldHandle, RakNet::RakString newHandle)
 {

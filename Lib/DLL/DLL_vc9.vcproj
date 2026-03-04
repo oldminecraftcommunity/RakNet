@@ -6,14 +6,11 @@
 	ProjectGUID="{BC75CD23-CB75-4233-A305-B7328825A9A5}"
 	RootNamespace="DLL"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="196613"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
 			Name="Win32"
-		/>
-		<Platform
-			Name="x64"
 		/>
 	</Platforms>
 	<ToolFiles>
@@ -21,9 +18,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)Lib"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -44,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./../../Source;&quot;./../../DependentExtensions/openssl-1.0.0d/include&quot;;./../../DependentExtensions"
+				AdditionalIncludeDirectories="./../../Source;&quot;./../../DependentExtensions/openssl-1.0.0d/include&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;_DEBUG;_RAKNET_DLL;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				ExceptionHandling="0"
@@ -53,7 +51,7 @@
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
-				ProgramDataBaseFileName="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).pdb"
+				ProgramDataBaseFileName="$(OutDir)/../../RakNetDebug"
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
@@ -70,97 +68,15 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib"
-				OutputFile="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).dll"
+				OutputFile="$(OutDir)/../../RakNetDebug.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/../../RakNetDebug.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).lib"
+				ImportLibrary="$(OutDir)/../../RakNetDLLDebug.lib"
 				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)Lib"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="./../../Source;&quot;./../../DependentExtensions/openssl-1.0.0d/include&quot;;./../../DependentExtensions"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;_DEBUG;_RAKNET_DLL;_CRT_NONSTDC_NO_DEPRECATE"
-				MinimalRebuild="true"
-				ExceptionHandling="0"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				BufferSecurityCheck="false"
-				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="0"
-				ProgramDataBaseFileName="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).pdb"
-				WarningLevel="4"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
-				OutputFile="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).dll"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).lib"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -186,11 +102,11 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)Lib"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
-			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -209,14 +125,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./../../Source;&quot;./../../DependentExtensions/openssl-1.0.0d/include&quot;;./../../DependentExtensions"
+				AdditionalIncludeDirectories="./../../Source;&quot;./../../DependentExtensions/openssl-1.0.0d/include&quot;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;_RELEASE;_RAKNET_DLL;_CRT_NONSTDC_NO_DEPRECATE"
 				ExceptionHandling="0"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
-				ProgramDataBaseFileName="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).pdb"
+				ProgramDataBaseFileName="$(OutDir)/../../RakNet"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
@@ -233,99 +149,17 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib"
-				OutputFile="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).dll"
+				OutputFile="$(OutDir)/../../RakNet.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="false"
+				ProgramDatabaseFile="$(OutDir)/../../RakNet.pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).lib"
+				ImportLibrary="$(OutDir)/../../RakNetDLL.lib"
 				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)Lib"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./../../Source;&quot;./../../DependentExtensions/openssl-1.0.0d/include&quot;;./../../DependentExtensions"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;WIN32;_RELEASE;_RAKNET_DLL;_CRT_NONSTDC_NO_DEPRECATE"
-				ExceptionHandling="0"
-				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
-				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="0"
-				ProgramDataBaseFileName="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).pdb"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib"
-				OutputFile="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).dll"
-				LinkIncremental="1"
-				GenerateDebugInformation="false"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)\$(SolutionName)_$(ProjectName)_$(ConfigurationName)_$(PlatformName).lib"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -355,15 +189,11 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
 				RelativePath="..\..\Source\_FindFirst.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\Base64Encoder.cpp"
 				>
 			</File>
 			<File
@@ -415,10 +245,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\DR_SHA1.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\Source\DS_BytePool.cpp"
 				>
 			</File>
@@ -440,6 +266,10 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\EmailSender.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\EncodeClassName.cpp"
 				>
 			</File>
 			<File
@@ -488,10 +318,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\HTTPConnection.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\HTTPConnection2.cpp"
 				>
 			</File>
 			<File
@@ -571,10 +397,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\PS4Includes.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\Source\Rackspace.cpp"
 				>
 			</File>
@@ -588,50 +410,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\RakNetSocket.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2_360_720.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2_Berkley.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2_Berkley_NativeClient.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2_NativeClient.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2_PS3_PS4.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2_PS4.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2_Vita.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2_Windows_Linux.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2_Windows_Linux_360.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2_WindowsStore8.cpp"
 				>
 			</File>
 			<File
@@ -671,15 +449,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\RandSync.cpp"
+				RelativePath="..\..\Source\rdlmalloc.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\Source\ReadyEvent.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RelayPlugin.cpp"
 				>
 			</File>
 			<File
@@ -707,6 +481,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\SHA1.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\SignaledEvent.cpp"
 				>
 			</File>
@@ -716,10 +494,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\SocketLayer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\StatisticsHistory.cpp"
 				>
 			</File>
 			<File
@@ -744,10 +518,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\TeamBalancer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\TeamManager.cpp"
 				>
 			</File>
 			<File
@@ -791,10 +561,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\VitaIncludes.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\Source\WSAStartupSingleton.cpp"
 				>
 			</File>
@@ -814,10 +580,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\AutopatcherRepositoryInterface.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\Base64Encoder.h"
 				>
 			</File>
 			<File
@@ -869,7 +631,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\DR_SHA1.h"
+				RelativePath="..\..\Source\DistributedDataClient.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\DistributedDataServer.h"
 				>
 			</File>
 			<File
@@ -946,6 +712,10 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\DS_RangeList.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\DS_StringKeyedHash.h"
 				>
 			</File>
 			<File
@@ -1030,10 +800,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\HTTPConnection.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\HTTPConnection2.h"
 				>
 			</File>
 			<File
@@ -1149,10 +915,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\PS3Includes.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\Source\Rackspace.h"
 				>
 			</File>
@@ -1186,10 +948,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\RakNetSocket.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\RakNetSocket2.h"
 				>
 			</File>
 			<File
@@ -1241,6 +999,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Source\rdlmalloc-options.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Source\rdlmalloc.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Source\ReadyEvent.h"
 				>
 			</File>
@@ -1249,11 +1015,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\RelayPlugin.h"
+				RelativePath="..\..\Source\ReliabilityLayer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\ReliabilityLayer.h"
+				RelativePath="..\..\Source\Replica.h"
 				>
 			</File>
 			<File
@@ -1273,11 +1039,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\SecureHandshake.h"
+				RelativePath="..\..\Source\SendToThread.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\SendToThread.h"
+				RelativePath="..\..\Source\SHA1.h"
 				>
 			</File>
 			<File
@@ -1297,19 +1063,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\SocketDefines.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\Source\SocketIncludes.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\Source\SocketLayer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\StatisticsHistory.h"
 				>
 			</File>
 			<File
@@ -1334,10 +1092,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Source\TeamBalancer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\TeamManager.h"
 				>
 			</File>
 			<File
@@ -1393,19 +1147,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\VitaIncludes.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\Source\WindowsIncludes.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\Source\WSAStartupSingleton.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\XBox360Includes.h"
 				>
 			</File>
 		</Filter>

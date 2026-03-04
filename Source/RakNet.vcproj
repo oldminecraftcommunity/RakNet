@@ -345,7 +345,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DR_SHA1.cpp"
+				RelativePath=".\SHA1.cpp"
 				>
 			</File>
 			<File
@@ -719,7 +719,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DR_SHA1.h"
+				RelativePath=".\SHA1.h"
 				>
 			</File>
 			<File

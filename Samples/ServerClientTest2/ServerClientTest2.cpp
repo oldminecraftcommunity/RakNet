@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RakPeerInterface.h"
 
 #include "BitStream.h"
@@ -253,10 +243,10 @@ int main(void)
 	}
 
 	unsigned i;
-	randomData1[0]=(char) ID_USER_PACKET_ENUM;
+	randomData1[0]=ID_USER_PACKET_ENUM;
 	for (i=0; i < RANDOM_DATA_SIZE_1-1; i++)
 		randomData1[i+1]=i;
-	randomData2[0]=(char) ID_USER_PACKET_ENUM;
+	randomData2[0]=ID_USER_PACKET_ENUM;
 	for (i=0; i < RANDOM_DATA_SIZE_2-1; i++)
 		randomData2[i+1]=i;
 

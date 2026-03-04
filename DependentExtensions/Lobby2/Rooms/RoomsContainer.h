@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #ifndef __LOBBY_ROOM_H
 #define __LOBBY_ROOM_H
 
@@ -221,7 +211,6 @@ struct JoinedRoomResult
 	RoomsParticipant* joiningMember;
 	RakNet::RakString joiningMemberName;
 	SystemAddress joiningMemberAddress;
-	RakNetGUID joiningMemberGuid;
 
 	// Needed to serialize
 	AllGamesRoomsContainer *agrc;
@@ -489,7 +478,7 @@ public:
 	Room * GetRoomByLobbyRoomID(RoomID lobbyRoomID);
 	Room * GetRoomByName(RakNet::RakString roomName);
 	RoomsErrorCode GetInvitesToParticipant(RoomsParticipant* roomsParticipant, DataStructures::List<InvitedUser*> &invites);
-	bool DestroyRoomIfDead(Room *room);
+	void DestroyRoomIfDead(Room *room);
 	void ChangeHandle(RakNet::RakString oldHandle, RakNet::RakString newHandle);
 
 	unsigned ProcessQuickJoins( DataStructures::List<QuickJoinUser*> &timeoutExpired,

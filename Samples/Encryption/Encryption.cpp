@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include <cstdio>
 #include <cstring>
 #include <stdlib.h>
@@ -149,38 +139,38 @@ int main(void)
 			}
 			else
 			{
-				keyLoaded=true;
-				printf("Keys generated.  Save to disk? (y/n)\n");
+			keyLoaded=true;
+			printf("Keys generated.  Save to disk? (y/n)\n");
 
+			Gets(str, sizeof(str));
+			if (str[0]=='y' || str[0]=='Y')
+			{
+					printf("Enter filename to save public key to: ");
 				Gets(str, sizeof(str));
-				if (str[0]=='y' || str[0]=='Y')
+                if (str[0])
 				{
-						printf("Enter filename to save public key to: ");
-					Gets(str, sizeof(str));
-					if (str[0])
-					{
-						printf("Writing public key... ");
-						fp=fopen(str, "wb");
-							fwrite(public_key, sizeof(public_key), 1, fp);
-						fclose(fp);
-						printf("Done.\n");
-					}
-					else
-						printf("\nKey not written.\n");
-
-					printf("Enter filename to save private key to: ");
-					Gets(str, sizeof(str));
-					if (str[0])
-					{
-						printf("Writing private key... ");
-						fp=fopen(str, "wb");
-							fwrite(private_key, sizeof(private_key), 1, fp);
-						fclose(fp);
-						printf("Done.\n");
-					}
-					else
-						printf("\nKey not written.\n");
+					printf("Writing public key... ");
+					fp=fopen(str, "wb");
+						fwrite(public_key, sizeof(public_key), 1, fp);
+					fclose(fp);
+					printf("Done.\n");
 				}
+				else
+					printf("\nKey not written.\n");
+
+				printf("Enter filename to save private key to: ");
+				Gets(str, sizeof(str));
+				if (str[0])
+				{
+					printf("Writing private key... ");
+					fp=fopen(str, "wb");
+						fwrite(private_key, sizeof(private_key), 1, fp);
+					fclose(fp);
+					printf("Done.\n");
+				}
+				else
+					printf("\nKey not written.\n");
+			}
 			}
 			PrintOptions();
 		}
@@ -270,22 +260,22 @@ int main(void)
 						run_test = false;
 					}
 				}
-			}
 
-			if (str[0] == '4')
-			{
-				printf("Generating client keys...");
-
-				// Generate a (public, private) server key pair
-				if (!handshake.GenerateServerKey(client_public_key, client_private_key))
+				if (str[0] == '4')
 				{
-					printf("ERROR:Unable to generate client keys for some reason!\n");
+					printf("Generating client keys...");
 
-					run_test = false;
-				}
-				else
-				{
-					printf("Key generation complete.\n");
+					// Generate a (public, private) server key pair
+					if (!handshake.GenerateServerKey(client_public_key, client_private_key))
+					{
+						printf("ERROR:Unable to generate client keys for some reason!\n");
+
+						run_test = false;
+					}
+					else
+					{
+						printf("Key generation complete.\n");
+					}
 				}
 			}
 

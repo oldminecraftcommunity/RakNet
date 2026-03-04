@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #define INTERACTIVE
 
 #if defined(INTERACTIVE)
@@ -260,7 +250,7 @@ int main(void)
 		fmodSystem->update();
 		// Update or connection with FMOD
 		RakNet::FMODVoiceAdapter::Instance()->Update();
-	//	LogStats();
+		LogStats();
 		RakSleep(20);
 
 	}
@@ -270,7 +260,6 @@ int main(void)
 	fmodSystem->release();
 
 	rakPeer->Shutdown(300);
-	rakPeer->DetachPlugin(&rakVoice);
 	RakNet::RakPeerInterface::DestroyInstance(rakPeer);
 
 	return 0;

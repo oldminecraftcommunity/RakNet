@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include <cstdio>
 #include <cstring>
 #include <stdlib.h>
@@ -39,7 +29,7 @@ int main()
 	RakNet::SocketDescriptor sd;
 	sd.socketFamily=AF_INET; // Only IPV4 supports broadcast on 255.255.255.255
 	sd.port=60000;
-	while (IRNS2_Berkley::IsPortInUse(sd.port, sd.hostAddress, sd.socketFamily, SOCK_DGRAM)==true)
+	while (SocketLayer::IsPortInUse(sd.port, sd.hostAddress, sd.socketFamily)==true)
 		sd.port++;
 	StartupResult sr = rakPeer->Startup(8,&sd,1);
 	RakAssert(sr==RAKNET_STARTED);
@@ -47,9 +37,6 @@ int main()
 	rakPeer->SetTimeoutTime(1000,RakNet::UNASSIGNED_SYSTEM_ADDRESS);
 	printf("Our guid is %s\n", rakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString());
 	printf("Started on %s\n", rakPeer->GetMyBoundAddress().ToString(true));
-	BitStream contextBs;
-	contextBs.Write(RakString("Our guid is %s\n", rakPeer->GetGuidFromSystemAddress(RakNet::UNASSIGNED_SYSTEM_ADDRESS).ToString()));
-	fcm2.SetMyContext(&contextBs);
 
 //	PacketLogger packetLogger;
 //	rakPeer->AttachPlugin(&packetLogger);
@@ -102,11 +89,11 @@ int main()
 					bs.IgnoreBytes(1);
 					RakNetGUID oldHost;
 					bs.Read(oldHost);
-					// If oldHost is different then the current host, then we lost connection to the host
-					if (oldHost!=UNASSIGNED_RAKNET_GUID)
+					// If the old host is different, then this message was due to losing connection to the host.
+					if (oldHost!=packet->guid)
 						printf(". Oldhost Guid=%s\n", oldHost.ToString());
 					else
-						printf(". (First reported host)\n");
+						printf("\n");
 				}
 				break;
 
@@ -136,18 +123,9 @@ int main()
 			ch=getch();
 			if (ch==' ')
 			{
-
-				DataStructures::List<RakNetGUID> participantList;
-				fcm2.GetParticipantList(participantList);
-				printf("%i participants\n", participantList.Size());
-				for (int i=0; i < participantList.Size(); i++)
-				{
-					BitStream userContext;
-					fcm2.GetParticipantContext(participantList[i], &userContext);
-					RakString str;
-					userContext.Read(str);
-					printf("%i. %s: %s", i+1, participantList[i].ToString(), str.C_String());
-				}
+				unsigned int participantList;
+				fcm2.GetParticipantCount(&participantList);
+				printf("participantList=%i\n",participantList);
 			}
 			if (ch=='q' || ch=='Q')
 			{

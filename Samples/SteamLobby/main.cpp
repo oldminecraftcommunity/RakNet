@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "Lobby2Client_Steam.h" // If Lobby2Client_Steam.h is included before SocketLayer.h, then it will use the steam send functions
@@ -103,11 +93,11 @@ int main(int argc, char **argv)
 	lobby2Client = Lobby2Client_Steam::GetInstance();
 	lobby2Client->AddCallbackInterface(&steamResults);
 	lobby2Client->SetMessageFactory(messageFactory);
+	rakPeer->AttachPlugin(lobby2Client);
 	SocketDescriptor sd(1234,0);
 	rakPeer->Startup(32,&sd,1);
 	rakPeer->SetMaximumIncomingConnections(32);
 	rakPeer->AttachPlugin(fcm2);
-	rakPeer->AttachPlugin(lobby2Client);
 	// Connect manually in Notification_Console_MemberJoinedRoom
 	fcm2->SetConnectOnNewRemoteConnection(false, "");
 	RakNet::Lobby2Message* msg = messageFactory->Alloc(RakNet::L2MID_Client_Login);
@@ -263,7 +253,7 @@ int main(int argc, char **argv)
 					}
 
 					RakNet::Console_JoinRoom_Steam* msg = (RakNet::Console_JoinRoom_Steam*) messageFactory->Alloc(RakNet::L2MID_Console_JoinRoom);
-					printf("Enter room id, or enter for %" PRINTF_64_BIT_MODIFIER "u: ", lastRoom);
+					printf("Enter room id, or enter for %"PRINTF_64_BIT_MODIFIER"u: ", lastRoom);
 					char str[256];
 					Gets(str, sizeof(str));
 					if (str[0]==0)
@@ -317,7 +307,7 @@ int main(int argc, char **argv)
 					lobby2Client->GetRoomMembers(roomMembers);
 					for (unsigned int i=0; i < roomMembers.Size(); i++)
 					{
-						printf("%i. %s ID=%" PRINTF_64_BIT_MODIFIER "u\n", i+1, lobby2Client->GetRoomMemberName(roomMembers[i]), roomMembers[i]);
+						printf("%i. %s ID=%"PRINTF_64_BIT_MODIFIER"u\n", i+1, lobby2Client->GetRoomMemberName(roomMembers[i]), roomMembers[i]);
 					}
 				}
 				break;

@@ -1,16 +1,7 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // ----------------------------------------------------------------------
 // RakNet version 1.0
 // Filename Ping.cpp
+// Created by Rakkar Software (rakkar@jenkinssoftware.com) January 24, 2003
 // Very basic chat engine example
 // ----------------------------------------------------------------------
 #include "MessageIdentifiers.h"
@@ -139,29 +130,23 @@ int main(void)
 		switch (p->data[0])
 		{
 			case ID_UNCONNECTED_PONG:
-				{
-					unsigned int dataLength;
-					RakNet::TimeMS time;
-					RakNet::BitStream bsIn(p->data,p->length,false);
-					bsIn.IgnoreBytes(1);
-					bsIn.Read(time);
-					dataLength = p->length - sizeof(unsigned char) - sizeof(RakNet::TimeMS);
-					printf("ID_UNCONNECTED_PONG from SystemAddress %s.\n", p->systemAddress.ToString(true));
-					printf("Time is %i\n",time);
-					printf("Ping is %i\n", (unsigned int)(RakNet::GetTimeMS()-time));
-					printf("Data is %i bytes long.\n", dataLength);
-					if (dataLength > 0)
-						printf("Data is %s\n", p->data+sizeof(unsigned char)+sizeof(RakNet::TimeMS));
-
-					// In this sample since the client is not running a game we can save CPU cycles by
-					// Stopping the network threads after receiving the pong.
-					client->Shutdown(100);
-				}
+				unsigned int dataLength;
+				RakNet::TimeMS time;
+				RakNet::BitStream bsIn(p->data,p->length,false);
+				bsIn.IgnoreBytes(1);
+				bsIn.Read(time);
+				dataLength = p->length - sizeof(unsigned char) - sizeof(RakNet::TimeMS);
+				printf("ID_UNCONNECTED_PONG from SystemAddress %s.\n", p->systemAddress.ToString(true));
+				printf("Time is %i\n",time);
+				printf("Ping is %i\n", (unsigned int)(RakNet::GetTimeMS()-time));
+				printf("Data is %i bytes long.\n", dataLength);
+				if (dataLength > 0)
+					printf("Data is %s\n", p->data+sizeof(unsigned char)+sizeof(RakNet::TimeMS));
 				break;
-			case ID_UNCONNECTED_PING:
-				break;
-			case ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
-				break;			
+			
+			// In this sample since the client is not running a game we can save CPU cycles by
+			// Stopping the network threads after receiving the pong.
+			client->Shutdown(100);
 		}
 
 		// We're done with the packet

@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RakPeerInterface.h"
 #include "RakSleep.h"
 #include <stdio.h>
@@ -34,10 +24,10 @@
 
 using namespace RakNet;
 
-#define DEFAULT_RAKPEER_PORT 50000
+#define RAKPEER_PORT 0
 #define RAKPEER_PORT_STR "0"
 #define DEFAULT_SERVER_PORT "61111"
-#define DEFAULT_SERVER_ADDRESS "natpunch.jenkinssoftware.com"
+#define DEFAULT_SERVER_ADDRESS "94.198.81.195"
 
 enum SampleResult
 {
@@ -46,11 +36,11 @@ enum SampleResult
 	SUCCEEDED
 };
 
-#define SUPPORT_UPNP FAILED
-#define SUPPORT_NAT_TYPE_DETECTION FAILED
+#define SUPPORT_UPNP PENDING
+#define SUPPORT_NAT_TYPE_DETECTION PENDING
 #define SUPPORT_NAT_PUNCHTHROUGH PENDING
-#define SUPPORT_ROUTER2 FAILED
-#define SUPPORT_UDP_PROXY FAILED
+#define SUPPORT_ROUTER2 PENDING
+#define SUPPORT_UDP_PROXY PENDING
 
 struct SampleFramework
 {
@@ -153,11 +143,6 @@ SystemAddress ConnectBlocking(RakNet::RakPeerInterface *rakPeer, const char *hos
 			{
 				return packet->systemAddress;
 			}
-			else if (packet->data[0]==ID_NO_FREE_INCOMING_CONNECTIONS)
-			{
-				printf("ID_NO_FREE_INCOMING_CONNECTIONS");
-				return RakNet::UNASSIGNED_SYSTEM_ADDRESS;
-			}
 			else
 			{
 				return RakNet::UNASSIGNED_SYSTEM_ADDRESS;
@@ -179,7 +164,7 @@ struct UPNPFramework : public SampleFramework
 		if (sampleResult==FAILED) return;
 
 		struct UPNPDev * devlist = 0;
-		devlist = upnpDiscover(2000, 0, 0, 0, 0, 0);
+		devlist = upnpDiscover(2000, 0, 0, 0);
 		if (devlist)
 		{
 			printf("List of UPNP devices found on the network :\n");
@@ -195,8 +180,6 @@ struct UPNPFramework : public SampleFramework
 			struct IGDdatas data;
 			if (UPNP_GetValidIGD(devlist, &urls, &data, lanaddr, sizeof(lanaddr))==1)
 			{
-				// 4/16/2012 Why was I doing this? Just to read my external port? That shouldn't be necessary
-				/*
 				SystemAddress serverAddress=SelectAmongConnectedSystems(rakPeer, "NatTypeDetectionServer");
 				if (serverAddress==RakNet::UNASSIGNED_SYSTEM_ADDRESS)
 				{
@@ -209,29 +192,16 @@ struct UPNPFramework : public SampleFramework
 					}
 				}
 
+				DataStructures::List<RakNetSmartPtr<RakNetSocket> > sockets;
+				rakPeer->GetSockets(sockets);
 
 				char iport[32];
 				Itoa(sockets[0]->boundAddress.GetPort(),iport,10);
 				char eport[32];
 				Itoa(rakPeer->GetExternalID(serverAddress).GetPort(),eport,10);
-				*/
 
-				// Use same external and internal ports
-				DataStructures::List<RakNetSocket2* > sockets;
-				rakPeer->GetSockets(sockets);
-				char iport[32];
-				Itoa(sockets[0]->GetBoundAddress().GetPort(),iport,10);
-				char eport[32];
-				strcpy(eport, iport);
-
-
-				// Version 1.5
-// 				int r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
-// 					 eport, iport, lanaddr, 0, "UDP", 0);
-
-				// Version miniupnpc-1.6.20120410
 				int r = UPNP_AddPortMapping(urls.controlURL, data.first.servicetype,
-					 					    eport, iport, lanaddr, 0, "UDP", 0, "0");
+					 eport, iport, lanaddr, 0, "UDP", 0);
 
 				if(r!=UPNPCOMMAND_SUCCESS)
 					printf("AddPortMapping(%s, %s, %s) failed with code %d (%s)\n",
@@ -239,22 +209,10 @@ struct UPNPFramework : public SampleFramework
 
 				char intPort[6];
 				char intClient[16];
-
-				// Version 1.5
-// 				r = UPNP_GetSpecificPortMappingEntry(urls.controlURL,
-// 					data.first.servicetype,
-// 					eport, "UDP",
-// 					intClient, intPort);
-
-				// Version miniupnpc-1.6.20120410
-				char desc[128];
-				char enabled[128];
-				char leaseDuration[128];
 				r = UPNP_GetSpecificPortMappingEntry(urls.controlURL,
 					data.first.servicetype,
 					eport, "UDP",
-					intClient, intPort,
-					desc, enabled, leaseDuration);
+					intClient, intPort);
 
 				if(r!=UPNPCOMMAND_SUCCESS)
 				{
@@ -335,7 +293,7 @@ struct NatTypeDetectionFramework : public SampleFramework
 			{
 				// For UPNP, see Samples\UDPProxy
 				printf("Note: Your router must support UPNP or have the user manually forward ports.\n");
-				printf("Otherwise NATPunchthrough may not always succeed.\n");
+				printf("Otherwise not all connections may complete.\n");
 			}
 
 			sampleResult=SUCCEEDED;
@@ -363,8 +321,6 @@ struct NatTypeDetectionFramework : public SampleFramework
 
 struct NatPunchthoughClientFramework : public SampleFramework, public NatPunchthroughDebugInterface_Printf
 {
-	SystemAddress serverAddress;
-
 	// Set to FAILED to skip this test
 	NatPunchthoughClientFramework() { sampleResult=SUPPORT_NAT_PUNCHTHROUGH; npClient=0;}
 	virtual const char * QueryName(void) {return "NatPunchthoughClientFramework";}
@@ -376,7 +332,7 @@ struct NatPunchthoughClientFramework : public SampleFramework, public NatPunchth
 	{
 		if (sampleResult==FAILED) return;
 
-		serverAddress=SelectAmongConnectedSystems(rakPeer, "NatPunchthroughServer");
+		SystemAddress serverAddress=SelectAmongConnectedSystems(rakPeer, "NatPunchthroughServer");
 		if (serverAddress==RakNet::UNASSIGNED_SYSTEM_ADDRESS)
 		{
 			serverAddress=ConnectBlocking(rakPeer, "NatPunchthroughServer", DEFAULT_SERVER_ADDRESS, DEFAULT_SERVER_PORT);
@@ -387,15 +343,14 @@ struct NatPunchthoughClientFramework : public SampleFramework, public NatPunchth
 				return;
 			}
 		}
-
+		
+		char guid[128];
+		printf("Enter RakNetGuid of the remote system, which should have already connected\nto the server.\nOr press enter to just listen.\n");
+		Gets(guid,sizeof(guid));
 		npClient = new NatPunchthroughClient;
 		npClient->SetDebugInterface(this);
 		rakPeer->AttachPlugin(npClient);
 
-
-		char guid[128];
-		printf("Enter RakNetGuid of the remote system, which should have already connected\nto the server.\nOr press enter to just listen.\n");
-		Gets(guid,sizeof(guid));
 		if (guid[0])
 		{
 			RakNetGUID remoteSystemGuid;
@@ -410,10 +365,6 @@ struct NatPunchthoughClientFramework : public SampleFramework, public NatPunchth
 			printf("Listening\n");
 			printf("My GUID is %s\n", rakPeer->GetMyGUID().ToString());
 			isListening=true;
-
-			// Find the stride of our router in advance
-			npClient->FindRouterPortStride(serverAddress);
-
 		}
 	}
 
@@ -465,22 +416,7 @@ struct NatPunchthoughClientFramework : public SampleFramework, public NatPunchth
 				printf("NAT punch success to remote system %s.\n", packet->systemAddress.ToString(true));
 			else
 				printf("NAT punch success from remote system %s.\n", packet->systemAddress.ToString(true));
-
-			char guid[128];
-			printf("Enter RakNetGuid of the remote system, which should have already connected.\nOr press enter to quit.\n");
-			Gets(guid,sizeof(guid));
-			if (guid[0])
-			{
-				RakNetGUID remoteSystemGuid;
-				remoteSystemGuid.FromString(guid);
-				npClient->OpenNAT(remoteSystemGuid, serverAddress);
-			
-				timeout=RakNet::GetTimeMS() + 10000;
-			}
-			else
-			{
-				sampleResult=SUCCEEDED;
-			}
+			sampleResult=SUCCEEDED;
 		}
 	}
 	virtual void Update(RakNet::RakPeerInterface *rakPeer)
@@ -680,7 +616,7 @@ struct UDPProxyClientFramework : public SampleFramework, public UDPProxyClientRe
 		printf("Failure: No servers have available forwarding ports.\n");
 		sampleResult=FAILED;
 	}
-	virtual void OnForwardingInProgress(const char *proxyIPAddress, unsigned short proxyPort, SystemAddress proxyCoordinator, SystemAddress sourceAddress, SystemAddress targetAddress, RakNetGUID targetGuid, RakNet::UDPProxyClient *proxyClientPlugin)
+	virtual void OnForwardingInProgress(SystemAddress proxyCoordinator, SystemAddress sourceAddress, SystemAddress targetAddress, RakNetGUID targetGuid, RakNet::UDPProxyClient *proxyClientPlugin)
 	{
 		printf("Notification: Forwarding already in progress.\n");
 	}
@@ -732,7 +668,7 @@ void PrintPacketMessages(Packet *packet, RakPeerInterface *rakPeer)
 		break;
 
 	case ID_CONNECTION_LOST:
-		printf("ID_CONNECTION_LOST from %s\n", packet->systemAddress.ToString(true));
+		printf("ID_CONNECTION_LOST\n");
 		break;
 
 	case ID_CONNECTION_REQUEST_ACCEPTED:
@@ -755,18 +691,11 @@ enum FeatureList
 int main(void)
 {
 	RakNet::RakPeerInterface *rakPeer=RakNet::RakPeerInterface::GetInstance();
-	printf("Enter local port, or press enter for default: ");
-	char buff[64];
-	Gets(buff,sizeof(buff));
-	unsigned short port = DEFAULT_RAKPEER_PORT;
-	if (buff[0]!=0)
-		port = atoi(buff);
-	RakNet::SocketDescriptor sd(port,0);
+	RakNet::SocketDescriptor sd(RAKPEER_PORT,0);
 	if (rakPeer->Startup(32,&sd,1)!=RakNet::RAKNET_STARTED)
 	{
 		printf("Failed to start rakPeer! Quitting\n");
 		RakNet::RakPeerInterface::DestroyInstance(rakPeer);
-		getch();
 		return 1;
 	}
 	rakPeer->SetMaximumIncomingConnections(32);
@@ -794,7 +723,7 @@ int main(void)
 	printf("\nDo you have a server running the NATCompleteServer project? (y/n): ");
 
 	char responseLetter=getche();
-	bool hasServer=responseLetter=='y' || responseLetter=='Y' || responseLetter==' ';
+	bool hasServer=responseLetter=='y' || responseLetter=='Y';
 	printf("\n");
 	if (hasServer==false)
 		printf("Note: Only UPNP and Router2 are supported without a server\nYou may want to consider using the Lobby2/Steam project. They host the\nservers for you.\n\n");
@@ -812,7 +741,6 @@ int main(void)
 			if (currentStage==FEATURE_LIST_COUNT)
 			{
 				printf("Connectivity not possible. Exiting\n");
-				getch();
 				return 1;
 			}
 		}
@@ -855,7 +783,6 @@ int main(void)
 						printf("Connectivity not possible. Exiting\n");
 						rakPeer->Shutdown(100);
 						RakNet::RakPeerInterface::DestroyInstance(rakPeer);
-						getch();
 						return 1;
 					}
 					else
@@ -890,7 +817,6 @@ int main(void)
 						printf("Press enter to quit.\n");
 						char temp[32];
 						Gets(temp,sizeof(temp));
-						getch();
 						return 1;
 					}
 
@@ -921,17 +847,15 @@ int main(void)
 
 						rakPeer->Shutdown(100);
 						RakNet::RakPeerInterface::DestroyInstance(rakPeer);
-						getch();
 						return 1;
 					}
 					break;
 				}
 			}
 
-			RakSleep(30);
+			RakSleep(100);
 		}
 	}
 
-	getch();
 	return 0;
 }

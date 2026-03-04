@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "RoomsPlugin.h"
 #include "RakPeerInterface.h"
 
@@ -77,16 +67,14 @@ static const char *ROOM_NAME="My Room";
 
 void GetUserName(RakNet::RoomsPluginFunc *func)
 {
-	printf("Which user? 1=User1, 2=User2, 3=User3, 4=User4: ");
+	printf("Which user? 1=User1, 2=User2, 3=User3: ");
 	char ch = getche();
 	if (ch=='1')
 		func->userName="User1";
 	else if (ch=='2')
 		func->userName="User2";
-	else if (ch=='3')
-		func->userName="User3";
 	else
-		func->userName="User4";
+		func->userName="User3";
 	printf("\n");
 }
 void GetRoomName(RakNet::RakString &dest)
@@ -101,16 +89,14 @@ void GetRoomName(RakNet::RakString &dest)
 }
 void GetTargetName(RakNet::RakString *target)
 {
-	printf("Which target user? 1=User1, 2=User2, 3=User3, 4=User4: ");
+	printf("Which target user? 1=User1, 2=User2, 3=User3: ");
 	char ch = getche();
 	if (ch=='1')
 		*target="User1";
 	else if (ch=='2')
 		*target="User2";
-	else if (ch=='3')
-		*target="User3";
 	else
-		*target="User4";
+		*target="User3";
 	printf("\n");
 }
 void main(void)
@@ -199,7 +185,6 @@ void main(void)
 				roomsPluginServer.LoginRoomsParticipant("User1", p->systemAddress, p->guid, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
 				roomsPluginServer.LoginRoomsParticipant("User2", p->systemAddress, p->guid, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
 				roomsPluginServer.LoginRoomsParticipant("User3", p->systemAddress, p->guid, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
-				roomsPluginServer.LoginRoomsParticipant("User4", p->systemAddress, p->guid, RakNet::UNASSIGNED_SYSTEM_ADDRESS);
 			}
 			server->DeallocatePacket(p);
 		}
@@ -441,8 +426,7 @@ void main(void)
 					printf("AddUserToQuickJoin\n");
 					RakNet::AddUserToQuickJoin_Func func;
 					GetUserName(&func);
-					func.networkedQuickJoinUser.timeout=30000;
-					func.networkedQuickJoinUser.minimumPlayers=4;
+					func.networkedQuickJoinUser.timeout=5000;
 					func.gameIdentifier=GAME_IDENTIFIER;
 					roomsPluginClient.ExecuteFunc(&func);
 				}

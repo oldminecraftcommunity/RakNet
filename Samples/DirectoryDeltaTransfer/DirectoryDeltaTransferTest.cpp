@@ -1,12 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
 
 #include "GetTime.h"
 #include "RakPeerInterface.h"
@@ -31,7 +22,7 @@
 #include <unistd.h> // usleep
 #endif
 
-#define USE_TCP
+// #define USE_TCP
 
 class TestCB : public RakNet::FileListTransferCBInterface
 {
@@ -116,7 +107,7 @@ int main(void)
 		localPort=atoi(str);
 	RakNet::SocketDescriptor socketDescriptor(localPort,0);
 #ifdef USE_TCP
-	bool b=tcp1.Start(localPort,8);
+	bool b=tcp1.Start(localPort,1);
 	RakAssert(b);
 #else
 	if (rakPeer->Startup(8,&socketDescriptor, 1)!=RakNet::RAKNET_STARTED)

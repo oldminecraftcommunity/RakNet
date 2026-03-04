@@ -205,14 +205,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\Source\Base64Encoder.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\Base64Encoder.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\Source\BitStream.cpp"
 			>
 		</File>
@@ -409,6 +401,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\Source\DS_ThreadsafePrimitives.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\Source\DS_Tree.h"
 			>
 		</File>
@@ -430,6 +426,10 @@
 		</File>
 		<File
 			RelativePath="..\..\..\Source\EmailSender.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\Source\EncodeClassName.cpp"
 			>
 		</File>
 		<File
@@ -538,14 +538,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\Source\HTTPConnection.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\HTTPConnection2.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\HTTPConnection2.h"
 			>
 		</File>
 		<File
@@ -737,10 +729,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\Source\PS3Includes.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\Source\Rackspace.cpp"
 			>
 		</File>
@@ -762,6 +750,14 @@
 		</File>
 		<File
 			RelativePath="..\..\..\Source\RakMemoryOverride.h"
+			>
+		</File>
+		<File
+			RelativePath="..\SwigOutput\CplusDLLIncludes\RakNet_wrap.cxx"
+			>
+		</File>
+		<File
+			RelativePath="..\SwigOutput\CplusDLLIncludes\RakNet_wrap.h"
 			>
 		</File>
 		<File
@@ -790,42 +786,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\Source\RakNetSocket.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\RakNetSocket2.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\RakNetSocket2.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\RakNetSocket2_360_720.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\RakNetSocket2_Berkley.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\RakNetSocket2_NativeClient.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\RakNetSocket2_PS3_PS4.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\RakNetSocket2_Vita.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\RakNetSocket2_Windows_Linux.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\RakNetSocket2_Windows_Linux_360.cpp"
 			>
 		</File>
 		<File
@@ -913,6 +873,18 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\Source\rdlmalloc-options.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\Source\rdlmalloc.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\Source\rdlmalloc.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\Source\ReadyEvent.cpp"
 			>
 		</File>
@@ -925,19 +897,15 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\Source\RelayPlugin.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\RelayPlugin.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\Source\ReliabilityLayer.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\..\..\Source\ReliabilityLayer.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\Source\Replica.h"
 			>
 		</File>
 		<File
@@ -985,11 +953,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\Source\DR_SHA1.cpp"
+			RelativePath="..\..\..\Source\SHA1.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\Source\DR_SHA1.h"
+			RelativePath="..\..\..\Source\SHA1.h"
 			>
 		</File>
 		<File
@@ -1017,10 +985,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\Source\SocketDefines.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\Source\SocketIncludes.h"
 			>
 		</File>
@@ -1030,14 +994,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\Source\SocketLayer.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\StatisticsHistory.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\StatisticsHistory.h"
 			>
 		</File>
 		<File
@@ -1086,14 +1042,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\Source\TeamBalancer.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\TeamManager.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\TeamManager.h"
 			>
 		</File>
 		<File
@@ -1189,14 +1137,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\..\Source\VitaIncludes.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\VitaIncludes.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\Source\WindowsIncludes.h"
 			>
 		</File>
@@ -1206,10 +1146,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\Source\WSAStartupSingleton.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\Source\XBox360Includes.h"
 			>
 		</File>
 	</Files>

@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 // I tried to put most of the RakNet stuff here, but some of it had to go to CDemo.h too
 
 #ifndef __RAKNET_ADDITIONS_FOR_IRRLICHT_DEMO_H
@@ -43,7 +33,7 @@ extern PlayerReplica *playerReplica; // Network object that represents the playe
 
 // A NAT punchthrough and proxy server Jenkins Software is hosting for free, should usually be online
 #define DEFAULT_NAT_PUNCHTHROUGH_FACILITATOR_PORT 61111
-#define DEFAULT_NAT_PUNCHTHROUGH_FACILITATOR_IP "natpunch.jenkinssoftware.com"
+#define DEFAULT_NAT_PUNCHTHROUGH_FACILITATOR_IP "94.198.81.195"
 
 void InstantiateRakNetClasses(void);
 void DeinitializeRakNetClasses(void);

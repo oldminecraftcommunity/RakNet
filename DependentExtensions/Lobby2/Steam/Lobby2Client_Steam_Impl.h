@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #ifndef __LOBBY_2_CLIENT_STEAM_IMPL_H
 #define __LOBBY_2_CLIENT_STEAM_IMPL_H
 
@@ -54,10 +44,10 @@ public:
 	virtual uint64_t GetRoomID(void) const {return roomId;}
 
 	/// Called when SendTo would otherwise occur.
-	virtual int RakNetSendTo( const char *data, int length, const SystemAddress &systemAddress );
+	virtual int RakNetSendTo( SOCKET s, const char *data, int length, const SystemAddress &systemAddress );
 
 	/// Called when RecvFrom would otherwise occur. Return number of bytes read. Write data into dataOut
-	virtual int RakNetRecvFrom( char dataOut[ MAXIMUM_MTU_SIZE ], SystemAddress *senderOut, bool calledFromMainThread);
+	virtual int RakNetRecvFrom( const SOCKET sIn, RakPeer *rakPeerIn, char dataOut[ MAXIMUM_MTU_SIZE ], SystemAddress *senderOut, bool calledFromMainThread);
 
 	virtual void OnRakPeerShutdown(void);
 	virtual void OnClosedConnection(const SystemAddress &systemAddress, RakNetGUID rakNetGUID, PI2_LostConnectionReason lostConnectionReason );

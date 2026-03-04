@@ -1,13 +1,3 @@
-/*
- *  Copyright (c) 2014, Oculus VR, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant 
- *  of patent rights can be found in the PATENTS file in the same directory.
- *
- */
-
 #include "DSoundVoiceAdapter.h"
 #include "RakAssert.h"
 #include "RakPeerInterface.h"
@@ -154,11 +144,7 @@ bool DSoundVoiceAdapter::SetupIncomingBuffer()
 	for (int i=0; i<FRAMES_IN_SOUND; i++)
 	{
 		incomingBufferNotifications[i].dwOffset = i*rakVoice->GetBufferSizeBytes();
-#if defined(WINDOWS_PHONE_8)
-		if ((incomingBufferNotifications[i].hEventNotify = CreateEventEx(0, 0, CREATE_EVENT_MANUAL_RESET, 0))==NULL)
-#else
 		if ((incomingBufferNotifications[i].hEventNotify = CreateEvent(NULL, TRUE, FALSE, NULL))==NULL)
-#endif
 		{
 			DXTRACE_ERR_MSGBOX(L"CreateEvent", GetLastError());
 			return false;
@@ -241,7 +227,7 @@ bool DSoundVoiceAdapter::SetupOutgoingBuffer()
 	for (int i=0; i<FRAMES_IN_SOUND; i++)
 	{
 		outgoingBufferNotifications[i].dwOffset = i*rakVoice->GetBufferSizeBytes();
-		if ((outgoingBufferNotifications[i].hEventNotify = CreateEventEx(0, 0, CREATE_EVENT_MANUAL_RESET, 0))==NULL)
+		if ((outgoingBufferNotifications[i].hEventNotify = CreateEvent(NULL, TRUE, FALSE, NULL))==NULL)
 		{
 			DXTRACE_ERR_MSGBOX(L"CreateEvent", GetLastError());
 			return false;
