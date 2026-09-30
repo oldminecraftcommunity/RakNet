@@ -48,6 +48,10 @@ struct RemoteSystemIndex{unsigned index; RemoteSystemIndex *next;};
 class RAK_DLL_EXPORT RakPeer : public RakPeerInterface
 {
 public:
+	/// Mojang being evil and malicious by adding a random field
+	int _isProbablyBroken;
+
+
 	///Constructor
 	RakPeer();
 

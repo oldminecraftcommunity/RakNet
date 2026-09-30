@@ -190,7 +190,7 @@ RakPeer::RakPeer()
 	_server_handshake = 0;
 	_cookie_jar = 0;
 #endif
-
+	this->_isProbablyBroken = 0;
 	StringCompressor::AddReference();
 	RakNet::StringTable::AddReference();
 	WSAStartupSingleton::AddRef();
@@ -338,6 +338,7 @@ RakPeer::~RakPeer()
 // --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 StartupResult RakPeer::Startup( unsigned short maxConnections, SocketDescriptor *socketDescriptors, unsigned socketDescriptorCount, int threadPriority )
 {
+	this->_isProbablyBroken = 0;
 	if (IsActive())
 		return RAKNET_ALREADY_STARTED;
 
